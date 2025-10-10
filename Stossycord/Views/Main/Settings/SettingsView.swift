@@ -37,20 +37,20 @@ struct SettingsView: View {
     
     var body: some View {
         VStack {
-            Text("Settings")
+            Text("settings.title")
                 .font(.largeTitle)
                 .padding()
             
             List {
-                Section("Appearance") {
-                    Toggle("Disable animated avatars", isOn: $disableAnimatedAvatars)
-                        .help("When enabled, animated profile pictures will be requested as PNG and shown as a static first frame.")
-                    Toggle("Disable profile picture tap", isOn: $disableProfilePictureTap)
-                        .help("When enabled, tapping profile pictures won't open user profiles.")
+                Section("settings.section.appearance") {
+                    Toggle("settings.toggle.disableAnimatedAvatars", isOn: $disableAnimatedAvatars)
+                        .help(Text("settings.toggle.disableAnimatedAvatars.help"))
+                    Toggle("settings.toggle.disableProfilePictureTap", isOn: $disableProfilePictureTap)
+                        .help(Text("settings.toggle.disableProfilePictureTap.help"))
                 }
 
-                Section("Design") {
-                    Picker("Message style", selection: $messageStyleRawValue) {
+                Section("settings.section.design") {
+                    Picker("settings.picker.messageStyle", selection: $messageStyleRawValue) {
                         ForEach(MessageBubbleStyle.selectableCases) { style in
                             Text(style.displayName).tag(style.rawValue)
                         }
@@ -59,13 +59,13 @@ struct SettingsView: View {
                     .pickerStyle(.segmented)
                     #endif
 
-                    Toggle("Show my profile picture", isOn: $showSelfAvatar)
-                        .help("When disabled, your messages align closer to the edge without your avatar.")
+                    Toggle("settings.toggle.showSelfAvatar", isOn: $showSelfAvatar)
+                        .help(Text("settings.toggle.showSelfAvatar.help"))
                     
                     let selectedStyle = MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .imessage
                     if selectedStyle == .custom {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Custom bubble JSON")
+                            Text("settings.customBubble.label")
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                             TextEditor(text: $customBubbleJSON)
@@ -81,15 +81,15 @@ struct SettingsView: View {
                                 .disableAutocorrection(true)
                     #endif
                             if !MessageBubbleVisualConfiguration.isCustomJSONValid(customBubbleJSON) {
-                                Text("Invalid JSON detected – falling back to defaults.")
+                                Text("settings.customBubble.invalid")
                                     .font(.caption)
                                     .foregroundColor(.red)
                             }
                             HStack(spacing: 12) {
-                                Button("Load sample") {
+                                Button("settings.customBubble.loadSample") {
                                     customBubbleJSON = MessageBubbleVisualConfiguration.sampleJSON
                                 }
-                                Button("Clear") {
+                                Button("common.clear") {
                                     customBubbleJSON = ""
                                 }
                                 .foregroundColor(.secondary)
@@ -100,14 +100,14 @@ struct SettingsView: View {
                     }
                 }
                 
-                Section("Cache") {
-                    Toggle("Disable profile pictures cache", isOn: $disableProfilePicturesCache)
-                        .help("When enabled, profile pictures won't be cached and will be downloaded every time.")
-                    Toggle("Disable profile cache", isOn: $disableProfileCache)
-                        .help("When enabled, user profiles and bios won't be cached and will be fetched every time.")
+                Section("settings.section.cache") {
+                    Toggle("settings.toggle.disableProfilePicturesCache", isOn: $disableProfilePicturesCache)
+                        .help(Text("settings.toggle.disableProfilePicturesCache.help"))
+                    Toggle("settings.toggle.disableProfileCache", isOn: $disableProfileCache)
+                        .help(Text("settings.toggle.disableProfileCache.help"))
                     
                     HStack {
-                        Button("Clear cache") {
+                        Button("settings.button.clearCache") {
                             CacheService.shared.clearAllCaches()
                         }
                         .foregroundColor(.red)
@@ -120,21 +120,21 @@ struct SettingsView: View {
                     }
                 }
                 
-                Section("Beta") {
-                    Toggle("Hide channels you can't see", isOn: $hideRestrictedChannels)
-                        .help("When enabled, channels without VIEW_CHANNEL permission will be hidden from the channel list.")
-                    Toggle("Use native picker", isOn: $useNativePicker)
-                        .help("When enabled, uses the native iOS picker for selecting photos and files instead of the custom interface.")
-                    Toggle("Use redesigned messages", isOn: $useRedesignedMessages)
-                        .help("When enabled, messages from the same author within 30 minutes are grouped together and images without text don't show message bubbles.")
-                    Toggle("Use Discord server folders", isOn: $useDiscordFolders)
-                        .help("When enabled, servers are organized using your Discord folder structure.")
+                Section("settings.section.beta") {
+                    Toggle("settings.toggle.hideRestrictedChannels", isOn: $hideRestrictedChannels)
+                        .help(Text("settings.toggle.hideRestrictedChannels.help"))
+                    Toggle("settings.toggle.useNativePicker", isOn: $useNativePicker)
+                        .help(Text("settings.toggle.useNativePicker.help"))
+                    Toggle("settings.toggle.useRedesignedMessages", isOn: $useRedesignedMessages)
+                        .help(Text("settings.toggle.useRedesignedMessages.help"))
+                    Toggle("settings.toggle.useDiscordFolders", isOn: $useDiscordFolders)
+                        .help(Text("settings.toggle.useDiscordFolders.help"))
                 }
 
-                Section("Presence") {
+                Section("settings.section.presence") {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text("Apple Music access")
+                            Text("settings.presence.appleMusicAccess")
                             Spacer()
                             Text(authorizationStatusText(presenceManager.authorizationStatus))
                                 .foregroundColor(authorizationStatusColor(presenceManager.authorizationStatus))
@@ -149,19 +149,19 @@ struct SettingsView: View {
                                     ProgressView()
                                         .progressViewStyle(.circular)
                                 } else {
-                                    Text("Request Apple Music access")
+                                    Text("settings.presence.requestAccess")
                                 }
                             }
                             .buttonStyle(.borderedProminent)
                             .disabled(presenceManager.isRequestingAuthorization)
                         } else {
-                            Text("Apple Music access is enabled.")
+                            Text("settings.presence.enabled")
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                         }
 
                         if presenceManager.authorizationStatus == .authorized {
-                            Toggle("Share Apple Music status", isOn: $presenceManager.musicPresenceEnabled)
+                            Toggle("settings.presence.shareStatus", isOn: $presenceManager.musicPresenceEnabled)
                         } else {
                             Text(authorizationHelpText(for: presenceManager.authorizationStatus))
                                 .font(.footnote)
@@ -171,14 +171,14 @@ struct SettingsView: View {
                         if !presenceManager.musicPresenceEnabled {
                             Divider()
 
-                            Text("Custom presence")
+                            Text("settings.presence.customPresence")
                                 .font(.headline)
 
-                            TextField("Activity name", text: $presenceManager.customPresenceName)
-                            TextField("Details", text: $presenceManager.customPresenceDetails)
-                            TextField("State", text: $presenceManager.customPresenceState)
+                            TextField("settings.presence.activityName", text: $presenceManager.customPresenceName)
+                            TextField("settings.presence.details", text: $presenceManager.customPresenceDetails)
+                            TextField("settings.presence.state", text: $presenceManager.customPresenceState)
 
-                            Text("Leave the activity name empty to clear your custom presence.")
+                            Text("settings.presence.clearInstructions")
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
 
@@ -190,7 +190,7 @@ struct SettingsView: View {
                                     presenceManager.customPresenceDetails = ""
                                     presenceManager.customPresenceState = ""
                                 } label: {
-                                    Text("Clear custom presence")
+                                    Text("settings.presence.clearButton")
                                 }
                             }
                         }
@@ -198,10 +198,10 @@ struct SettingsView: View {
                     .padding(.vertical, 4)
                 }
 
-                Section("Token") {
+                Section("settings.section.token") {
                     
                     HStack {
-                        Text("Token: ")
+                        Text("settings.token.label")
                         ZStack {
                             if isspoiler {
                                 Spacer()
@@ -230,7 +230,7 @@ struct SettingsView: View {
                                             UIPasteboard.general.string = keychain.get("token") ?? ""
                                             #endif
                                         } label: {
-                                            Text("Copy")
+                                            Text("common.copy")
                                         }
                                     }
                                     .onTapGesture {
@@ -247,13 +247,13 @@ struct SettingsView: View {
                             keychain.delete("token")
                             showAlert = true
                         } label: {
-                            Text("Log Out")
+                            Text("settings.button.logout")
                         }
                     }
                 }
 
-                Section("Warning zone") {
-                    Toggle("Allow destructive actions", isOn: Binding(
+                Section("settings.section.warningZone") {
+                    Toggle("settings.toggle.allowDestructiveActions", isOn: Binding(
                         get: { allowDestructiveActions },
                         set: { newValue in
                             if newValue {
@@ -263,7 +263,7 @@ struct SettingsView: View {
                             }
                         }
                     ))
-                    .help("When enabled, allows actions like mass leaving servers.")
+                    .help(Text("settings.toggle.allowDestructiveActions.help"))
                     .foregroundColor(allowDestructiveActions ? .red : .primary)
                     .sheet(isPresented: $showPopover) {
                         VStack(spacing: 20) {
@@ -274,10 +274,10 @@ struct SettingsView: View {
                                     .padding(.top, 16)
                                     .padding(.bottom, 16)
 
-                                Text("Are you sure?")
+                                Text("settings.destructive.confirmTitle")
                                     .font(.system(size: 38, weight: .bold))
 
-                                Text("This will enable options like mass leaving servers or other features that do not exist on official Discord distributions. Discord could suspend your account for using these features. Proceed with caution.")
+                                Text("settings.destructive.confirmDescription")
                                     .font(.system(size: 24))
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.leading)
@@ -293,7 +293,7 @@ struct SettingsView: View {
                                         allowDestructiveActions = true
                                         showPopover = false
                                     }) {
-                                        Text("Enable")
+                                        Text("common.enable")
                                             .frame(maxWidth: .infinity)
                                             .frame(minHeight: 40)
                                     }
@@ -305,7 +305,7 @@ struct SettingsView: View {
                                         allowDestructiveActions = false
                                         showPopover = false
                                     }) {
-                                        Text("Nevermind")
+                                        Text("common.nevermind")
                                             .frame(maxWidth: .infinity)
                                             .frame(minHeight: 40)
                                     }
@@ -316,7 +316,7 @@ struct SettingsView: View {
                                         allowDestructiveActions = true
                                         showPopover = false
                                     }) {
-                                        Text("Enable")
+                                        Text("common.enable")
                                             .frame(maxWidth: .infinity)
                                             .frame(minHeight: 56)
                                     }
@@ -327,7 +327,7 @@ struct SettingsView: View {
                                         allowDestructiveActions = false
                                         showPopover = false
                                     }) {
-                                        Text("Nevermind")
+                                        Text("common.nevermind")
                                             .frame(maxWidth: .infinity)
                                             .frame(minHeight: 56)
                                     }
@@ -384,8 +384,8 @@ struct SettingsView: View {
             }
             .alert(isPresented: $showAlert) {
                 .init(
-                    title: Text("Token Reset"),
-                    message: Text("Your token has been reset. Please Quit and Relaunch the App."))
+                    title: Text("settings.alert.tokenResetTitle"),
+                    message: Text("settings.alert.tokenResetMessage"))
             }
             .onAppear {
                 presenceManager.refreshAuthorizationStatus()
@@ -403,7 +403,7 @@ struct SettingsView: View {
         // Check whether biometric authentication is possible
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             // It's possible, so go ahead and use it
-            let reason = "This is very Sensitive Data. Please Authenticate"
+            let reason = String(localized: "settings.auth.biometricReason")
 
             context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
                 DispatchQueue.main.async {
@@ -435,14 +435,15 @@ struct SettingsView: View {
 
     func authenticateWithPasscode() {
         let context = LAContext()
-        let reason = "Please enter your passcode to authenticate"
+        let reason = String(localized: "settings.auth.passcodeReason")
 
         context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, error in
             DispatchQueue.main.async {
                 if success {
                     self.isspoiler = false
                 } else {
-                    print("Passcode authentication failed: \(error?.localizedDescription ?? "Unknown error")")
+                    let fallback = String(localized: "settings.auth.unknownError")
+                    print("Passcode authentication failed: \(error?.localizedDescription ?? fallback)\")
                     self.isspoiler = true
                 }
             }
@@ -464,18 +465,18 @@ private extension SettingsView {
 }
 
 private extension SettingsView {
-    func authorizationStatusText(_ status: MusicAuthorization.Status) -> String {
+    func authorizationStatusText(_ status: MusicAuthorization.Status) -> LocalizedStringKey {
         switch status {
         case .authorized:
-            return "Authorized"
+            return "authorization.status.authorized"
         case .denied:
-            return "Denied"
+            return "authorization.status.denied"
         case .restricted:
-            return "Restricted"
+            return "authorization.status.restricted"
         case .notDetermined:
-            return "Not requested"
+            return "authorization.status.notRequested"
         @unknown default:
-            return "Unknown"
+            return "authorization.status.unknown"
         }
     }
 
@@ -494,18 +495,18 @@ private extension SettingsView {
         }
     }
 
-    func authorizationHelpText(for status: MusicAuthorization.Status) -> String {
+    func authorizationHelpText(for status: MusicAuthorization.Status) -> LocalizedStringKey {
         switch status {
         case .authorized:
-            return "Apple Music access is enabled."
+            return "settings.presence.enabled"
         case .notDetermined:
-            return "Request access to share what you're listening to from Apple Music."
+            return "settings.presence.help.request"
         case .denied:
-            return "Access has been denied. You can re-enable Apple Music permissions from System Settings."
+            return "settings.presence.help.denied"
         case .restricted:
-            return "Apple Music access is restricted on this device."
+            return "settings.presence.help.restricted"
         @unknown default:
-            return "Apple Music access is currently unavailable."
+            return "settings.presence.help.unavailable"
         }
     }
 }

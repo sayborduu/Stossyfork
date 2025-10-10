@@ -1,3 +1,10 @@
+//
+//  MessageBubbleConfiguration.swift
+//  Stossycord
+//
+//  Created by Alex Badi on 2/10/25.
+//
+
 import SwiftUI
 
 struct MessageBubbleVisualConfiguration: Equatable {

@@ -2,7 +2,7 @@
 //  MessageViewRE.swift
 //  Stossycord
 //
-//  Created by AI Assistant on 2/10/2025.
+//  Created by Alex Badi on 2/10/2025.
 //
 
 import SwiftUI

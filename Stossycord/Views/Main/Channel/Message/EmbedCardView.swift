@@ -1,3 +1,10 @@
+//
+//  EmbedCardView.swift
+//  Stossycord
+//
+//  Created by Alex Badi on 2/10/25.
+//
+
 import SwiftUI
 import Foundation
 import MarkdownUI

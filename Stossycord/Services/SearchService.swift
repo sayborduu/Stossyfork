@@ -1,3 +1,10 @@
+//
+//  SearchService.swift
+//  Stossycord
+//
+//  Created by Alex Badi on 5/10/25.
+//
+
 import Foundation
 
 final class SearchService {
