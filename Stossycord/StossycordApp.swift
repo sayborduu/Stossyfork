@@ -10,14 +10,28 @@ import KeychainSwift
 
 @main
 struct StossycordApp: App {
-    @StateObject var webSocketService = WebSocketService.shared
-    @StateObject var settingsManager = SettingsManager(webSocketService: WebSocketService.shared)
-    @StateObject var presenceManager = PresenceManager(webSocketService: WebSocketService.shared)
+    @StateObject var webSocketService: WebSocketService
+    @StateObject var settingsManager: SettingsManager
+    @StateObject var presenceManager: PresenceManager
     let keychain = KeychainSwift()
     @State var isPresented: Bool = false
     @State var isfirst: Bool = false
     @Environment(\.scenePhase) var scenePhase
     @State var network = true
+
+    init() {
+        UserDefaults.standard.register(defaults: [
+            "hideRestrictedChannels": false,
+            "useNativePicker": true,
+            "useRedesignedMessages": true,
+            "useDiscordFolders": true
+        ])
+
+        let sharedService = WebSocketService.shared
+        _webSocketService = StateObject(wrappedValue: sharedService)
+        _settingsManager = StateObject(wrappedValue: SettingsManager(webSocketService: sharedService))
+        _presenceManager = StateObject(wrappedValue: PresenceManager(webSocketService: sharedService))
+    }
     var body: some Scene {
         WindowGroup {
             NavView(webSocketService: webSocketService)

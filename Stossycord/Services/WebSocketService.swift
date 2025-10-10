@@ -60,6 +60,7 @@ class WebSocketService: ObservableObject {
     
     // Thread safety
     private let stateQueue = DispatchQueue(label: "websocket.state", qos: .utility)
+    private let userSettingsCacheKey = "cachedUserSettings"
     
     static var shared = WebSocketService()
 
@@ -67,6 +68,10 @@ class WebSocketService: ObservableObject {
         token = keychain.get("token") ?? ""
         currentUser = User(id: "", username: "", discriminator: "", avatar: "")
         
+        if let cachedSettings = loadCachedUserSettings() {
+            userSettings = cachedSettings
+        }
+
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 60
         config.timeoutIntervalForResource = 300
@@ -548,6 +553,7 @@ class WebSocketService: ObservableObject {
             if let userSettingsData = data["user_settings"] as? [String: Any] {
                 let settingsData = try JSONSerialization.data(withJSONObject: userSettingsData)
                 let settings = try JSONDecoder().decode(UserSettings.self, from: settingsData)
+                cacheUserSettingsData(settingsData)
                 DispatchQueue.main.async {
                     self.userSettings = settings
                 }
@@ -585,8 +591,9 @@ class WebSocketService: ObservableObject {
         do {
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
             if let settingsData = json?["d"] as? [String: Any] {
-                let data = try JSONSerialization.data(withJSONObject: settingsData)
-                let decodedSettings = try JSONDecoder().decode(UserSettings.self, from: data)
+                let encodedSettings = try JSONSerialization.data(withJSONObject: settingsData)
+                let decodedSettings = try JSONDecoder().decode(UserSettings.self, from: encodedSettings)
+                cacheUserSettingsData(encodedSettings)
                 DispatchQueue.main.async {
                     self.userSettings = decodedSettings
                 }
@@ -598,6 +605,21 @@ class WebSocketService: ObservableObject {
                     self.userSettings = UserSettings()
                 }
             }
+        }
+    }
+
+    private func cacheUserSettingsData(_ data: Data) {
+        UserDefaults.standard.set(data, forKey: userSettingsCacheKey)
+    }
+
+    private func loadCachedUserSettings() -> UserSettings? {
+        guard let cachedData = UserDefaults.standard.data(forKey: userSettingsCacheKey) else { return nil }
+        do {
+            return try JSONDecoder().decode(UserSettings.self, from: cachedData)
+        } catch {
+            print("Failed to decode cached user settings: \(error)")
+            UserDefaults.standard.removeObject(forKey: userSettingsCacheKey)
+            return nil
         }
     }
     

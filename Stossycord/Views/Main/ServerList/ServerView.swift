@@ -17,7 +17,7 @@ import UIKit
 struct ServerView: View {
     @State private var searchTerm = ""
     @StateObject var webSocketService: WebSocketService
-    @AppStorage("useDiscordFolders") private var useDiscordFolders: Bool = false
+    @AppStorage("useDiscordFolders") private var useDiscordFolders: Bool = true
     @AppStorage("allowDestructiveActions") private var allowDestructiveActions: Bool = false
     @State private var expandedFolders: Set<String> = []
     @State private var selectionMode = false

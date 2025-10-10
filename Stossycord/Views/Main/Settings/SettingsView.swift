@@ -27,9 +27,9 @@ struct SettingsView: View {
     @AppStorage("disableProfilePicturesCache") private var disableProfilePicturesCache: Bool = false
     @AppStorage("disableProfileCache") private var disableProfileCache: Bool = false
     @AppStorage("hideRestrictedChannels") private var hideRestrictedChannels: Bool = false
-    @AppStorage("useNativePicker") private var useNativePicker: Bool = false
-    @AppStorage("useRedesignedMessages") private var useRedesignedMessages: Bool = false
-    @AppStorage("useDiscordFolders") private var useDiscordFolders: Bool = false
+    @AppStorage("useNativePicker") private var useNativePicker: Bool = true
+    @AppStorage("useRedesignedMessages") private var useRedesignedMessages: Bool = true
+    @AppStorage("useDiscordFolders") private var useDiscordFolders: Bool = true
     @AppStorage(DesignSettingsKeys.messageBubbleStyle) private var messageStyleRawValue: String = MessageBubbleStyle.imessage.rawValue
     @AppStorage(DesignSettingsKeys.showSelfAvatar) private var showSelfAvatar: Bool = true
     @AppStorage(DesignSettingsKeys.customMessageBubbleJSON) private var customBubbleJSON: String = ""

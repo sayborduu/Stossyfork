@@ -31,8 +31,8 @@ struct ChannelView: View {
     @StateObject private var tabBarModifier = TabBarModifier.shared
     @State private var showTokenWarning = false
     @State private var permissionStatus = ChannelPermissionStatus(canSendMessages: true, canAttachFiles: true, restrictionReason: nil)
-    @AppStorage("useNativePicker") private var useNativePicker: Bool = false
-    @AppStorage("useRedesignedMessages") private var useRedesignedMessages: Bool = false
+    @AppStorage("useNativePicker") private var useNativePicker: Bool = true
+    @AppStorage("useRedesignedMessages") private var useRedesignedMessages: Bool = true
     @State private var showNativePicker = false
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var showNativePhotoPicker = false
