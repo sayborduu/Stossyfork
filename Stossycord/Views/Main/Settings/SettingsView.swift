@@ -51,7 +51,7 @@ struct SettingsView: View {
 
                 Section("Design") {
                     Picker("Message style", selection: $messageStyleRawValue) {
-                        ForEach(MessageBubbleStyle.allCases) { style in
+                        ForEach(MessageBubbleStyle.selectableCases) { style in
                             Text(style.displayName).tag(style.rawValue)
                         }
                     }
@@ -62,7 +62,7 @@ struct SettingsView: View {
                     Toggle("Show my profile picture", isOn: $showSelfAvatar)
                         .help("When disabled, your messages align closer to the edge without your avatar.")
                     
-                    let selectedStyle = MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .default
+                    let selectedStyle = MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .imessage
                     if selectedStyle == .custom {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Custom bubble JSON")
@@ -452,8 +452,13 @@ struct SettingsView: View {
 
 private extension SettingsView {
     func ensureValidMessageStyle() {
-        if MessageBubbleStyle(rawValue: messageStyleRawValue) == nil {
-            messageStyleRawValue = MessageBubbleStyle.default.rawValue
+        guard let style = MessageBubbleStyle(rawValue: messageStyleRawValue) else {
+            messageStyleRawValue = MessageBubbleStyle.imessage.rawValue
+            return
+        }
+
+        if style == .default {
+            messageStyleRawValue = MessageBubbleStyle.imessage.rawValue
         }
     }
 }

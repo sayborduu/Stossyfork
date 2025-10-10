@@ -17,19 +17,23 @@ struct MessageViewRE: View {
     @StateObject var webSocketService: WebSocketService
     let isCurrentUser: Bool
     let onProfileTap: (() -> Void)?
+    let onReplyTap: ((Message) -> Void)?
     let isGrouped: Bool
     let allMessages: [Message]
     
     @State private var roleColor: Color = .primary
-    @AppStorage(DesignSettingsKeys.messageBubbleStyle) private var messageStyleRawValue: String = MessageBubbleStyle.default.rawValue
+    @AppStorage(DesignSettingsKeys.messageBubbleStyle) private var messageStyleRawValue: String = MessageBubbleStyle.imessage.rawValue
     @AppStorage(DesignSettingsKeys.showSelfAvatar) private var showSelfAvatar: Bool = true
     @AppStorage(DesignSettingsKeys.customMessageBubbleJSON) private var customBubbleJSON: String = ""
     @State private var showTimestampOverlay: Bool = false
     @State private var timestampHideTask: DispatchWorkItem?
     @State private var availableWidth: CGFloat = 0
+    @State private var dragOffset: CGFloat = 0
+    @State private var dragMode: DragInteractionMode = .undetermined
+    private let replySwipeThreshold: CGFloat = 45
     
     private var messageStyle: MessageBubbleStyle {
-        MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .default
+    MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .imessage
     }
     
     private var bubbleConfiguration: MessageBubbleVisualConfiguration {
@@ -63,6 +67,8 @@ struct MessageViewRE: View {
     private var timestampText: String? {
         MessageViewRE.formattedTimestamp(from: messageData)
     }
+
+    private var shouldShowTimestamp: Bool { false }
     
     private var overlayAlignment: Alignment {
         Alignment(
@@ -120,7 +126,8 @@ struct MessageViewRE: View {
                             style: messageStyle,
                             configuration: bubbleConfiguration,
                             editedTimestamp: messageData.editedtimestamp,
-                            maxWidth: maxBubbleWidth
+                            maxWidth: maxBubbleWidth,
+                            trailingTimestamp: shouldShowTimestamp && isLastInGroup ? timestampText : nil
                         )
                     }
                     
@@ -149,11 +156,21 @@ struct MessageViewRE: View {
                             isCurrentUser: isCurrentUser
                         )
                     }
+
+                    if shouldShowTimestamp, !hasTextContent, isLastInGroup, let timestampText {
+                        HStack(spacing: 4) {
+                            Spacer(minLength: 0)
+                            Text(timestampText)
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
 
                 contentColumn
                     .frame(maxWidth: maxBubbleWidth, alignment: frameAlignment)
                     .frame(maxWidth: .infinity, alignment: frameAlignment)
+                    .offset(x: dragOffset)
                 
                 if isCurrentUser {
                     avatarColumn(forCurrentUser: true)
@@ -162,9 +179,9 @@ struct MessageViewRE: View {
             .frame(maxWidth: .infinity, alignment: isCurrentUser ? .trailing : .leading)
             .padding(.horizontal, horizontalPadding)
             .padding(.vertical, verticalPadding)
-            .simultaneousGesture(timestampSwipeGesture)
+            .simultaneousGesture(swipeGesture)
             
-            if messageStyle == .imessage, showTimestampOverlay, let timestampText {
+            if shouldShowTimestamp, messageStyle == .imessage, showTimestampOverlay, let timestampText {
                 Text(timestampText)
                     .font(.caption2)
                     .foregroundColor(.secondary)
@@ -265,18 +282,114 @@ struct MessageViewRE: View {
         }
     }
     
-    private var timestampSwipeGesture: some Gesture {
-        DragGesture(minimumDistance: 20)
-            .onEnded { value in
-                guard messageStyle == .imessage else { return }
-                guard value.translation.width < -25 else { return }
-                guard timestampText != nil else { return }
-                timestampHideTask?.cancel()
-                withAnimation(.easeInOut) {
-                    showTimestampOverlay = true
-                }
-                scheduleTimestampHide()
+    private var swipeGesture: some Gesture {
+        DragGesture(minimumDistance: 25, coordinateSpace: .local)
+            .onChanged { value in
+                handleDragChange(translation: value.translation)
             }
+            .onEnded { value in
+                handleSwipe(translation: value.translation)
+                setDragOffsetAnim(0, animated: true)
+            }
+    }
+
+    private func setDragOffsetAnim(_ offset: CGFloat, animated: Bool, duration: Double = 0.3, dampingFraction: Double = 0.7) {
+        if animated {
+            withAnimation(.spring(response: duration, dampingFraction: dampingFraction)) {
+                dragOffset = offset
+            }
+        } else {
+            dragOffset = offset
+        }
+    }
+
+    private func handleDragChange(translation: CGSize) {
+        let horizontal = translation.width
+        let vertical = translation.height
+
+        switch dragMode {
+        case .undetermined:
+            if abs(horizontal) > 25 && abs(horizontal) > abs(vertical) * 1.5 {
+                dragMode = .horizontal
+            } else if abs(vertical) > 10 && abs(vertical) >= abs(horizontal) {
+                dragMode = .vertical
+            }
+        case .horizontal:
+            break
+        case .vertical:
+            setDragOffsetAnim(0, animated: true)
+            return
+        }
+
+        guard dragMode == .horizontal else {
+            setDragOffsetAnim(0, animated: true)
+            return
+        }
+
+        if isCurrentUser {
+            guard horizontal <= 0 else {
+                setDragOffsetAnim(0, animated: true)
+                return
+            }
+        } else {
+            guard horizontal >= 0 else {
+                setDragOffsetAnim(0, animated: true)
+                return
+            }
+        }
+
+        updateDragOffset(translationWidth: horizontal)
+    }
+
+    private func updateDragOffset(translationWidth: CGFloat) {
+        guard abs(translationWidth) > 8 else {
+            setDragOffsetAnim(0, animated: true)
+            return
+        }
+
+        if isCurrentUser {
+            //dragOffset = max(min(translationWidth, 0), -90)
+            setDragOffsetAnim(max(min(translationWidth, 0), -90), animated: true)
+        } else {
+            //dragOffset = min(max(translationWidth, 0), 90)
+            setDragOffsetAnim(min(max(translationWidth, 0), 90), animated: true)
+        }
+    }
+
+    private func handleSwipe(translation: CGSize) {
+        let horizontal = translation.width
+        let vertical = translation.height
+
+        defer { dragMode = .undetermined }
+
+        guard dragMode == .horizontal else { return }
+
+        if shouldTriggerReply(translationWidth: horizontal) {
+            triggerReply()
+            return
+        }
+
+    guard shouldShowTimestamp else { return }
+    guard messageStyle == .imessage else { return }
+        guard horizontal < -25 else { return }
+        guard timestampText != nil else { return }
+        timestampHideTask?.cancel()
+        withAnimation(.easeInOut) {
+            showTimestampOverlay = true
+        }
+        scheduleTimestampHide()
+    }
+
+    private func shouldTriggerReply(translationWidth: CGFloat) -> Bool {
+        if isCurrentUser {
+            return translationWidth <= -replySwipeThreshold
+        } else {
+            return translationWidth >= replySwipeThreshold
+        }
+    }
+
+    private func triggerReply() {
+        onReplyTap?(messageData)
     }
     
     private func scheduleTimestampHide() {
@@ -321,10 +434,21 @@ struct MessageViewRE: View {
     }
 
     private func ensureValidMessageStyle() {
-        if MessageBubbleStyle(rawValue: messageStyleRawValue) == nil {
-            messageStyleRawValue = MessageBubbleStyle.default.rawValue
+        guard let style = MessageBubbleStyle(rawValue: messageStyleRawValue) else {
+            messageStyleRawValue = MessageBubbleStyle.imessage.rawValue
+            return
+        }
+
+        if style == .default {
+            messageStyleRawValue = MessageBubbleStyle.imessage.rawValue
         }
     }
+}
+
+private enum DragInteractionMode {
+    case undetermined
+    case horizontal
+    case vertical
 }
 
 private struct AvailableWidthPreferenceKey: PreferenceKey {
@@ -344,6 +468,7 @@ struct MessageContentViewRE: View {
     let configuration: MessageBubbleVisualConfiguration
     let editedTimestamp: String?
     let maxWidth: CGFloat?
+    let trailingTimestamp: String?
 
     private var isEdited: Bool { editedTimestamp != nil }
     private var currentSide: MessageBubbleVisualConfiguration.Side {
@@ -358,6 +483,17 @@ struct MessageContentViewRE: View {
     }
 
     private static let markdownOptions = AttributedString.MarkdownParsingOptions(allowsExtendedAttributes: true, interpretedSyntax: .full)
+
+    @ViewBuilder
+    private var timestampBadge: some View {
+        if let trailingTimestamp {
+            Text(trailingTimestamp)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+        }
+    }
     
     var body: some View {
         bubbleContainer {
@@ -397,6 +533,7 @@ struct MessageContentViewRE: View {
                     in: .rect(cornerRadius: configuration.cornerRadius)
                 )
                 .overlay(strokeOverlay(for: side))
+                .overlay(alignment: .bottomTrailing) { timestampBadge }
         } else {
             padded
                 .background(
@@ -404,6 +541,7 @@ struct MessageContentViewRE: View {
                         .fill(side.background)
                 )
                 .overlay(strokeOverlay(for: side))
+                .overlay(alignment: .bottomTrailing) { timestampBadge }
         }
         #else
         padded
@@ -412,6 +550,7 @@ struct MessageContentViewRE: View {
                     .fill(side.background)
             )
             .overlay(strokeOverlay(for: side))
+            .overlay(alignment: .bottomTrailing) { timestampBadge }
         #endif
     }
     

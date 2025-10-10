@@ -12,7 +12,6 @@ func sendtyping(token: String, channel: String) {
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     
-    
     request.addValue(token, forHTTPHeaderField: "Authorization")
     
     request.addValue("gzip, deflate, br", forHTTPHeaderField: "Accept-Encoding")

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct MessageBarView: View {
     let permissionStatus: ChannelPermissionStatus
@@ -9,6 +10,7 @@ struct MessageBarView: View {
     @Binding var message: String
     @Binding var showNativePicker: Bool
     @Binding var showNativePhotoPicker: Bool
+    @Binding var showCameraPicker: Bool
     @Binding var showingFilePicker: Bool
     @Binding var showingUploadPicker: Bool
 
@@ -48,7 +50,7 @@ struct MessageBarView: View {
             }
         }
         .padding(.vertical, 12)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 8)
         .background(barBackground)
     }
 }
@@ -71,6 +73,10 @@ private extension MessageBarView {
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
+            .background(
+                RoundedRectangle(cornerRadius: baseInputHeight, style: .continuous)
+                    .fill(Color.black.opacity(0.3))
+            )
             .background(attachmentBackground)
             .confirmationDialog("Select Attachment", isPresented: $showNativePicker) {
                 Button("Photos") {
@@ -78,6 +84,10 @@ private extension MessageBarView {
                 }
                 Button("Files") {
                     showingFilePicker = true
+                }
+                Button("Camera") {
+                    guard UIImagePickerController.isSourceTypeAvailable(.camera) else { return }
+                    showCameraPicker = true
                 }
                 Button("Cancel", role: .cancel) { }
             }
@@ -88,13 +98,13 @@ private extension MessageBarView {
     @ViewBuilder
     var inputStack: some View {
         HStack(alignment: .bottom, spacing: 0) {
-            TextField(placeholder, text: $message, axis: .vertical)
-                .lineLimit(1...6)
-                .textFieldStyle(.plain)
-                .multilineTextAlignment(.leading)
-                .padding(.vertical, 10)
-                .padding(.leading, 6)
-                .padding(.trailing, 38)
+                TextField(placeholder, text: $message, axis: .vertical)
+                    .lineLimit(1...6)
+                    .textFieldStyle(.plain)
+                    .multilineTextAlignment(.leading)
+                    .padding(.vertical, 10)
+                    .padding(.leading, 6)
+                    .padding(.trailing, 60)
                 .onChange(of: message) { newValue in
                     onMessageChange(newValue)
                 }
@@ -105,19 +115,30 @@ private extension MessageBarView {
         .padding(.leading, 12)
         .padding(.trailing, 4)
         .frame(minHeight: baseInputHeight, alignment: .bottom)
+        .background(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(Color.black.opacity(0.3))
+        )
         .background(inputBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay(alignment: .trailing) {
-            Button(action: onSubmit) {
+            if canSendCurrentMessage {
+                Button(action: onSubmit) {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.blue)
+                        .padding(10)
+                }
+                .accessibilityLabel("Send Message")
+                .padding(.trailing, 6)
+            } else {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(canSendCurrentMessage ? .blue : .gray)
+                    .foregroundStyle(.gray)
                     .padding(10)
+                    .opacity(0)
+                    .padding(.trailing, 6)
             }
-            .disabled(!canSendCurrentMessage)
-            .opacity(canSendCurrentMessage ? 1 : 0)
-            .accessibilityLabel("Send Message")
-            .accessibilityHidden(!canSendCurrentMessage)
         }
     }
 
@@ -138,9 +159,9 @@ private extension MessageBarView {
     @ViewBuilder
     var attachmentBackground: some View {
         if #available(iOS 26.0, *) {
-            RoundedRectangle(cornerRadius: baseInputHeight / 2, style: .continuous)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .glassEffect(.clear)
-                .opacity(0.92)
+                .background(.black.opacity(0.3))
         } else {
             RoundedRectangle(cornerRadius: baseInputHeight / 2, style: .continuous)
                 .fill(Color(.secondarySystemBackground))
@@ -150,11 +171,11 @@ private extension MessageBarView {
     @ViewBuilder
     var inputBackground: some View {
         if #available(iOS 26.0, *) {
-            RoundedRectangle(cornerRadius: 100, style: .continuous)
-                .glassEffect(.clear)
-                .opacity(0.92)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .glassEffect(.clear, in: .rect(cornerRadius: 24.0))
+                .background(.black.opacity(0.3))
         } else {
-            RoundedRectangle(cornerRadius: 100, style: .continuous)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .fill(Color(.secondarySystemBackground))
         }
     }
@@ -169,6 +190,7 @@ private extension MessageBarView {
         message: .constant(""),
         showNativePicker: .constant(false),
         showNativePhotoPicker: .constant(false),
+        showCameraPicker: .constant(false),
         showingFilePicker: .constant(false),
         showingUploadPicker: .constant(false),
         onMessageChange: { _ in },

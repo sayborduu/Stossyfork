@@ -1,6 +1,8 @@
 # macOS
 .DS_Store
 
+.Stossycord.xcodeproj/
+
 **/xcuserdata/
 *.xcuserdatad/
 *.xcuserstate

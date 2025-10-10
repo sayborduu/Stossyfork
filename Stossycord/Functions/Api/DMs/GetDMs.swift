@@ -9,7 +9,7 @@ import Foundation
 
 func getDiscordDMs(token: String, completion: @escaping ([DMs]) -> Void) {
     guard let url = URL(string: "https://discord.com/api/v10/users/@me/channels") else {
-        // print("Invalid URL")
+        print("Invalid URL")
         return
     }
 
@@ -40,7 +40,7 @@ func getDiscordDMs(token: String, completion: @escaping ([DMs]) -> Void) {
 
     let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
         if let error = error {
-            // print("Error: \(error)")
+            print("Error: \(error)")
         } else if let data = data {
             do {
                 
@@ -59,6 +59,5 @@ func getDiscordDMs(token: String, completion: @escaping ([DMs]) -> Void) {
             }
         }
     }
-
     task.resume()
 }

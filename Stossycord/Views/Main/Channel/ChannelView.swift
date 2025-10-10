@@ -36,6 +36,7 @@ struct ChannelView: View {
     @State private var showNativePicker = false
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var showNativePhotoPicker = false
+    @State private var showCameraPicker = false
     
     private let keychain = KeychainSwift()
     
@@ -72,6 +73,7 @@ struct ChannelView: View {
                             message: $message,
                             showNativePicker: $showNativePicker,
                             showNativePhotoPicker: $showNativePhotoPicker,
+                            showCameraPicker: $showCameraPicker,
                             showingFilePicker: $showingFilePicker,
                             showingUploadPicker: $showingUploadPicker,
                             onMessageChange: { _ in handleTypingIndicator() },
@@ -117,6 +119,14 @@ struct ChannelView: View {
             selection: $selectedPhotoItem,
             matching: .any(of: [.images, .videos])
         )
+        #if os(iOS)
+        .fullScreenCover(isPresented: $showCameraPicker) {
+            CameraCaptureView {
+                self.fileURL = $0
+                self.showingUploadPicker = false
+            }
+        }
+        #endif
         .onChange(of: selectedPhotoItem) { item in
             handlePhotoSelection(item)
         }
@@ -186,6 +196,7 @@ struct ChannelView: View {
                         webSocketService: webSocketService, 
                         isCurrentUser: true, 
                         onProfileTap: { presentUserProfile(for: messageData.author) }, 
+                        onReplyTap: { repliedMessage = $0 }, 
                         isGrouped: isGrouped, 
                         allMessages: messages
                     )
@@ -233,6 +244,7 @@ struct ChannelView: View {
                         webSocketService: webSocketService, 
                         isCurrentUser: false, 
                         onProfileTap: { presentUserProfile(for: messageData.author) }, 
+                        onReplyTap: { repliedMessage = $0 }, 
                         isGrouped: isGrouped, 
                         allMessages: messages
                     )
@@ -278,35 +290,76 @@ struct ChannelView: View {
         VStack(spacing: 0) {
             Divider()
             
-            HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: "arrowshape.turn.up.left.fill")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                    
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Replying to \(replyMessage.author.globalName ?? replyMessage.author.username)")
-                            .font(.footnote)
-                            .fontWeight(.medium)
+            if #available(iOS 26.0, *) {
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrowshape.turn.up.left.fill")
+                            .font(.system(size: 12))
                             .foregroundColor(.secondary)
                         
-                        Text(replyMessage.content)
-                            .font(.footnote)
-                            .lineLimit(1)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Replying to \(replyMessage.author.globalName ?? replyMessage.author.username)")
+                                .font(.footnote)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                            
+                            Text(replyMessage.content)
+                                .font(.footnote)
+                                .lineLimit(1)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: { self.repliedMessage = nil }) {
+                        Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.secondary)
                     }
                 }
-                
-                Spacer()
-                
-                Button(action: { self.repliedMessage = nil }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.secondary)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .glassEffect(.clear)
+                .background {
+                    Color(UIColor { trait in
+                        trait.userInterfaceStyle == .dark
+                            ? UIColor(white: 0.0, alpha: 0.7)
+                            : UIColor(white: 1.0, alpha: 0.7)
+                    })
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
+                .padding(.horizontal, 8)
+            } else {
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrowshape.turn.up.left.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                        
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Replying to \(replyMessage.author.globalName ?? replyMessage.author.username)")
+                                .font(.footnote)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                            
+                            Text(replyMessage.content)
+                                .font(.footnote)
+                                .lineLimit(1)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: { self.repliedMessage = nil }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(Color(.systemGray6).opacity(0.8))
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color(.systemGray6).opacity(0.8))
         }
     }
     

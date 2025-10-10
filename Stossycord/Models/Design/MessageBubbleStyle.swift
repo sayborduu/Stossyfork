@@ -4,6 +4,8 @@ enum MessageBubbleStyle: String, CaseIterable, Identifiable {
     case `default`
     case imessage
     case custom
+
+    static let selectableCases: [MessageBubbleStyle] = [.imessage, .custom]
     
     var id: String { rawValue }
     
