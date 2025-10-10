@@ -1,6 +1,41 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
+    "(edited)" : {
+
+    },
+    "%@ • %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ • %2$@"
+          }
+        }
+      }
+    },
+    "%lld members" : {
+
+    },
+    "%lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "A Native Discord Client for iOS" : {
+
+    },
+    "About Me" : {
+
+    },
     "appearance" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -17,6 +52,9 @@
           }
         }
       }
+    },
+    "Archived" : {
+
     },
     "authorization.status.authorized" : {
       "extractionState" : "manual",
@@ -103,6 +141,18 @@
         }
       }
     },
+    "Bot" : {
+
+    },
+    "Camera" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Clear Search" : {
+
+    },
     "common.clear" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -171,6 +221,162 @@
         }
       }
     },
+    "Complete 2FA Verification" : {
+
+    },
+    "Complete Captcha" : {
+
+    },
+    "Copy" : {
+
+    },
+    "Copy Avatar URL" : {
+
+    },
+    "Copy Banner URL" : {
+
+    },
+    "Copy User ID" : {
+
+    },
+    "Delete Message" : {
+
+    },
+    "DMs" : {
+
+    },
+    "Done" : {
+
+    },
+    "Edit Message" : {
+
+    },
+    "Editing message" : {
+
+    },
+    "Email or Phone Number" : {
+
+    },
+    "Failed to Load Profile" : {
+
+    },
+    "Files" : {
+
+    },
+    "Filter" : {
+
+    },
+    "Invalid URL" : {
+
+    },
+    "Leave" : {
+
+    },
+    "Loading profile..." : {
+
+    },
+    "Loading user profile..." : {
+
+    },
+    "Log In" : {
+
+    },
+    "Logging in..." : {
+
+    },
+    "Login" : {
+
+    },
+    "Messages" : {
+
+    },
+    "Multiple choice" : {
+
+    },
+    "No channels available." : {
+
+    },
+    "No conversations yet" : {
+
+    },
+    "No matching conversations" : {
+
+    },
+    "No matching servers" : {
+
+    },
+    "No servers available" : {
+
+    },
+    "OK" : {
+
+    },
+    "Or login with email" : {
+
+    },
+    "Password" : {
+
+    },
+    "Photos" : {
+
+    },
+    "Profile" : {
+
+    },
+    "Profile only" : {
+
+    },
+    "Referenced message unavailable" : {
+
+    },
+    "Reply" : {
+
+    },
+    "Replying to %@" : {
+
+    },
+    "Retry" : {
+
+    },
+    "Save to photos" : {
+
+    },
+    "Scan QR Code" : {
+
+    },
+    "Search" : {
+
+    },
+    "Search conversations" : {
+
+    },
+    "Search messages, media, or people" : {
+
+    },
+    "Search servers" : {
+
+    },
+    "Searching for messages…" : {
+
+    },
+    "Select" : {
+
+    },
+    "Select Attachment" : {
+
+    },
+    "Select Photo" : {
+
+    },
+    "Send Anyway" : {
+
+    },
+    "Send Message" : {
+
+    },
+    "Servers" : {
+
+    },
     "settings" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -187,6 +393,9 @@
           }
         }
       }
+    },
+    "Settings" : {
+
     },
     "settings.alert.tokenResetMessage" : {
       "extractionState" : "manual",
@@ -1139,6 +1348,49 @@
           }
         }
       }
+    },
+    "Show User" : {
+
+    },
+    "Tap to view conversation" : {
+
+    },
+    "This user hasn't added a bio yet." : {
+
+    },
+    "Unable to Leave Servers" : {
+
+    },
+    "User ID: %@" : {
+
+    },
+    "User not found" : {
+
+    },
+    "Verifying..." : {
+
+    },
+    "Welcome to\nStossycord" : {
+
+    },
+    "You Are Offline" : {
+
+    },
+    "You share %lld server%@ with this user" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You share %1$lld server%2$@ with this user"
+          }
+        }
+      }
+    },
+    "You're sharing your token" : {
+
+    },
+    "Your message contains your Discord token. Sharing it with other people could open your account to other people. Do you want to send it?" : {
+
     }
   },
   "version" : "1.1"
