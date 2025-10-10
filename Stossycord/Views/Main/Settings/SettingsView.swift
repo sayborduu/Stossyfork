@@ -443,7 +443,7 @@ struct SettingsView: View {
                     self.isspoiler = false
                 } else {
                     let fallback = String(localized: "settings.auth.unknownError")
-                    print("Passcode authentication failed: \(error?.localizedDescription ?? fallback)\")
+                    print("Passcode authentication failed: \(error?.localizedDescription ?? fallback)")
                     self.isspoiler = true
                 }
             }
