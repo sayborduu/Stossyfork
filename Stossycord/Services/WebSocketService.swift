@@ -60,6 +60,7 @@ class WebSocketService: ObservableObject {
     
     // Thread safety
     private let stateQueue = DispatchQueue(label: "websocket.state", qos: .utility)
+    private var networkAvailableState: Bool = true
     private let userSettingsCacheKey = "cachedUserSettings"
     
     static var shared = WebSocketService()
@@ -381,27 +382,40 @@ class WebSocketService: ObservableObject {
             guard let self = self else { return }
             
             let isAvailable = (path.status == .satisfied)
-            
+            var wasAvailable = true
+            var shouldReconnect = false
+            var shouldDisconnect = false
+
             self.stateQueue.sync {
-                let wasAvailable = self.isNetworkAvailable
-                self.isNetworkAvailable = isAvailable
-                
+                wasAvailable = self.networkAvailableState
+                if self.networkAvailableState != isAvailable {
+                    self.networkAvailableState = isAvailable
+                }
+
                 if isAvailable && !wasAvailable {
                     print("Network restored, attempting to reconnect...")
-                    // Reset reconnection attempts when network is restored
                     self.reconnectionAttempts = 0
-                    
-                    // Check if we should reconnect
                     if !self.isConnected && !self.isConnecting {
-                        // Small delay to ensure network is fully stable
-                        self.webSocketQueue.asyncAfter(deadline: .now() + 1.0) {
-                            self.connect()
-                        }
+                        shouldReconnect = true
                     }
-                } else if !isAvailable {
+                } else if !isAvailable && wasAvailable {
                     print("Network lost")
-                    self.disconnect()
+                    shouldDisconnect = true
                 }
+            }
+
+            if wasAvailable != isAvailable {
+                DispatchQueue.main.async {
+                    self.isNetworkAvailable = isAvailable
+                }
+            }
+
+            if shouldReconnect {
+                self.webSocketQueue.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    self?.connect()
+                }
+            } else if shouldDisconnect {
+                self.disconnect()
             }
         }
         monitor.start(queue: networkQueue)

@@ -1,4 +1,10 @@
 import SwiftUI
+import MarkdownUI
+#if os(iOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 struct UserProfileView: View {
     let profile: UserProfile?
@@ -118,12 +124,29 @@ struct ProfileContentView: View {
     var isViewingOwnProfile: Bool {
         return currentUserId == profile.user.id
     }
+
+    private static var bioLineHeight: CGFloat {
+        #if os(iOS)
+        UIFont.preferredFont(forTextStyle: .body).lineHeight
+        #elseif os(macOS)
+        NSFont.preferredFont(forTextStyle: .body).boundingRectForFont.size.height
+        #else
+        18
+        #endif
+    }
+
+    private func markdownBio(from bio: String) -> String {
+        CustomEmojiRenderer.markdownString(from: bio)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let bio = profile.userProfile?.bio ?? profile.user.bio, !bio.isEmpty {
                 ProfileSectionView(title: "About Me") {
-                    Text(bio)
+                    Markdown(markdownBio(from: bio))
+                        .markdownTheme(.basic)
+                        .markdownImageProvider(DiscordEmojiImageProvider(lineHeight: ProfileContentView.bioLineHeight))
+                        .markdownInlineImageProvider(DiscordEmojiInlineImageProvider(lineHeight: ProfileContentView.bioLineHeight))
                         .font(.body)
                         .lineSpacing(4)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -166,6 +189,8 @@ struct ProfileContentView: View {
         .padding(.horizontal, 20)
     }
 }
+
+extension ProfileContentView {}
 
 struct ProfileSectionView<Content: View>: View {
     let title: String

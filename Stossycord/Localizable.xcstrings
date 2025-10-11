@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "" : {
-
+      "shouldTranslate" : false
     },
     "(edited)" : {
       "localizations" : {
@@ -56,6 +56,16 @@
         }
       }
     },
+    "▢ replacement" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "▢ reemplazo"
+          }
+        }
+      }
+    },
     "A Native Discord Client for iOS" : {
       "localizations" : {
         "es" : {
@@ -72,6 +82,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sobre mi"
+          }
+        }
+      }
+    },
+    "Add your Store ID and BLOB_READ_WRITE_TOKEN to continue." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade tu Store ID y BLOB_READ_WRITE_TOKEN para continuar."
+          }
+        }
+      }
+    },
+    "All Discord content loads normally." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo el contenido de Discord se carga normalmente"
           }
         }
       }
@@ -188,12 +218,45 @@
         }
       }
     },
+    "Blob configuration" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración del Blob"
+          }
+        }
+      }
+    },
+    "Blob credentials" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Credenciales del Blob"
+          }
+        }
+      }
+    },
+    "BLOB_READ_WRITE_TOKEN" : {
+      "shouldTranslate" : false
+    },
     "Bot" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bot"
+          }
+        }
+      }
+    },
+    "Both fields are required before Stossycord can talk to the Vercel Blob API." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ambos campos son requeridos para que Stossycord pueda comunicarse con la API de Vercel Blob."
           }
         }
       }
@@ -214,6 +277,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancelar"
+          }
+        }
+      }
+    },
+    "Choose your privacy mode" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige tu modo de privacidad"
           }
         }
       }
@@ -316,6 +389,16 @@
         }
       }
     },
+    "Continue" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar"
+          }
+        }
+      }
+    },
     "Copy" : {
       "localizations" : {
         "es" : {
@@ -356,12 +439,92 @@
         }
       }
     },
+    "Custom" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalizado"
+          }
+        }
+      }
+    },
+    "Custom Controls" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controles personalizados"
+          }
+        }
+      }
+    },
+    "Custom emoji backend" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backend de emojis personalizado"
+          }
+        }
+      }
+    },
+    "Custom Emojis" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emojis personalizados"
+          }
+        }
+      }
+    },
+    "Default" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por defecto"
+          }
+        }
+      }
+    },
+    "Delete \"%@\"" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar “%@”"
+          }
+        }
+      }
+    },
+    "Delete emoji?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar emoji?"
+          }
+        }
+      }
+    },
     "Delete Message" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Borrar mensaje"
+          }
+        }
+      }
+    },
+    "Disable this to only use your Stossycord custom emoji cache." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactiva esto para solo usar emojis personalizados de Stossycord."
           }
         }
       }
@@ -416,6 +579,46 @@
         }
       }
     },
+    "Emoji hyperlink text" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Texto del hipervínculo del emoji"
+          }
+        }
+      }
+    },
+    "Emoji Replacement" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reemplazo de emojis"
+          }
+        }
+      }
+    },
+    "Enable the Vercel Blob Store above to manage your custom emojis." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activa la Vercel Blob Store arriba para manejar tus emojis personalizados."
+          }
+        }
+      }
+    },
+    "Enable Vercel Blob Store" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar Vercel Blob Store"
+          }
+        }
+      }
+    },
     "Failed to Load Profile" : {
       "localizations" : {
         "es" : {
@@ -446,6 +649,46 @@
         }
       }
     },
+    "Fine-tune what Stossycord loads." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afina lo que carga Stossycord."
+          }
+        }
+      }
+    },
+    "GitHub" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub"
+          }
+        }
+      }
+    },
+    "Host your own" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hospedar el tuyo"
+          }
+        }
+      }
+    },
+    "Hyperlink text" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Texto hipervínculo"
+          }
+        }
+      }
+    },
     "Invalid URL" : {
       "localizations" : {
         "es" : {
@@ -462,6 +705,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Salir"
+          }
+        }
+      }
+    },
+    "Limits certain Discord calls. Only custom Stossycord emojis will load." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita ciertas llamadas a Discord. Solo cargaran los emojis personalizados de Stossycord."
+          }
+        }
+      }
+    },
+    "Load Discord Emojis" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargar emojis de Discord"
+          }
+        }
+      }
+    },
+    "Loading emojis…" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargando emojis…"
           }
         }
       }
@@ -536,6 +809,26 @@
         }
       }
     },
+    "Must be saved without the 'store_' prefix. Stossycord will remove it automatically." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se debe de guardar sin el prefijo ‘store_’. Stossycord lo quitará automáticamente."
+          }
+        }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre"
+          }
+        }
+      }
+    },
     "No channels available." : {
       "localizations" : {
         "es" : {
@@ -596,6 +889,16 @@
         }
       }
     },
+    "Open Vercel Dashboard" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir panel de Vercel"
+          }
+        }
+      }
+    },
     "Or login with email" : {
       "localizations" : {
         "es" : {
@@ -622,6 +925,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fotos"
+          }
+        }
+      }
+    },
+    "Pick the experience that suits you. You can change this later in settings." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige la experiencia que más te convenga. Puedes cambiar esto más tarde en ajustes."
+          }
+        }
+      }
+    },
+    "Privacy" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacidad"
+          }
+        }
+      }
+    },
+    "Privacy Modes" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modos de privacidad"
+          }
+        }
+      }
+    },
+    "Privacy Settings" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes de Privacidad"
           }
         }
       }
@@ -656,6 +999,16 @@
         }
       }
     },
+    "Refresh" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recargar"
+          }
+        }
+      }
+    },
     "Reply" : {
       "localizations" : {
         "es" : {
@@ -672,6 +1025,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Respondiendo a %@"
+          }
+        }
+      }
+    },
+    "Reset backend" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reiniciar backend"
+          }
+        }
+      }
+    },
+    "Reset hyperlink text" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resetear texto del hipervínculo"
           }
         }
       }
@@ -1302,6 +1675,23 @@
         }
       }
     },
+    "settings.privacy.mode" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy mode"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo de privacidad"
+          }
+        }
+      }
+    },
     "settings.section.appearance" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1315,6 +1705,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apariencia"
+          }
+        }
+      }
+    },
+    "settings.section.appearanceAndDesign" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance and Design"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apariencia y Diseño"
           }
         }
       }
@@ -1383,6 +1789,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Presencia"
+          }
+        }
+      }
+    },
+    "settings.section.privacy" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacidad"
           }
         }
       }
@@ -1805,12 +2227,42 @@
         }
       }
     },
+    "Start using Stossycord" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E"
+          }
+        }
+      }
+    },
+    "Store your custom emoji set in a Vercel Blob database. Stossycord only talks to Vercel on your behalf." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guarda tu set de emojis personalizados en una base de datos de Vercel Blob. Stossycord solo habla a Vercel en tu nombre."
+          }
+        }
+      }
+    },
     "Tap to view conversation" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Click para ver la conversación"
+          }
+        }
+      }
+    },
+    "This endpoint is used to send emojis on Discord. Your credentials never go there. It simply shortens the default Blob URL for Discord messages." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este endpoint se usa para enviar emojis en Discord. Tus credenciales nunca se enviarán ahí. Simplemente acorta el enlace Blob por defecto para los mensajes de Discord."
           }
         }
       }
@@ -1825,12 +2277,62 @@
         }
       }
     },
+    "This will permanently remove the emoji from your Vercel Blob store." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto borrara permanentemente el emoji de tu Vercel Blob store."
+          }
+        }
+      }
+    },
+    "Turn this off to exclusively use Stossycord custom emojis." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactiva esto para usar exclusivamente emojis personalizados de Stossycord."
+          }
+        }
+      }
+    },
     "Unable to Leave Servers" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se ha podido abandonar los servidores"
+          }
+        }
+      }
+    },
+    "Unique Store ID" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Store ID único"
+          }
+        }
+      }
+    },
+    "Upload emoji" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subir emji"
+          }
+        }
+      }
+    },
+    "Use custom emoji backend" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar backend personalizado de emojis"
           }
         }
       }
@@ -1875,12 +2377,42 @@
         }
       }
     },
+    "When emojis are disabled, you can customize how they are represented in messages. Use `%n` as a placeholder for the emoji name." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando los emojis están desactivados, puedes personalizar como se representan en mensajes. Usa `%n` como una plantilla para el nombre del emoji."
+          }
+        }
+      }
+    },
+    "While this is enabled, Stossycord will send a shortened URL to Discord instead of the full Blob URL." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mientras esto este activo, Stossycord enviará una versión acortada a Discord en vez de la URL completa del Blob."
+          }
+        }
+      }
+    },
     "You Are Offline" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Estás offline"
+          }
+        }
+      }
+    },
+    "You haven't uploaded any custom emojis yet. Upload an image to get started." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no has subido ningún emoji personalizado. Sube una imagen para empezar."
           }
         }
       }
@@ -1902,12 +2434,43 @@
         }
       }
     },
+    "You're all set to use Stossycord. Close this screen to start exploring." : {
+      "comment" : "Changed ‘you’re all set’ to ‘Stossycord is now set’, so its gender-neutral in Spanish.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stossycord ya esta listo para que lo uses. Cierra esta ventana para empezar a explorar."
+          }
+        }
+      }
+    },
+    "You're done!" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Has acabado!"
+          }
+        }
+      }
+    },
     "You're sharing your token" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Estás compartiendo tu token"
+          }
+        }
+      }
+    },
+    "Your emojis" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus emojis"
           }
         }
       }

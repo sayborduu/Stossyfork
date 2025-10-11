@@ -123,6 +123,7 @@
 				en,
 				es,
 				Base,
+				ca,
 			);
 			mainGroup = 4E099B5A2C9BD76C00C2D383;
 			minimizedProjectReferenceProxies = 1;

@@ -7,8 +7,12 @@
 
 import SwiftUI
 import Foundation
+import MarkdownUI
 #if os(iOS)
 import Giffy
+import UIKit
+#elseif os(macOS)
+import AppKit
 #endif
 
 struct MessageViewRE: View {
@@ -31,9 +35,13 @@ struct MessageViewRE: View {
     @State private var dragOffset: CGFloat = 0
     @State private var dragMode: DragInteractionMode = .undetermined
     private let replySwipeThreshold: CGFloat = 45
+
+    private var filteredEmbeds: [Embed] {
+        (messageData.embeds ?? []).filter { !$0.containsStossyMoji }
+    }
     
     private var messageStyle: MessageBubbleStyle {
-    MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .imessage
+        MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .imessage
     }
     
     private var bubbleConfiguration: MessageBubbleVisualConfiguration {
@@ -131,9 +139,9 @@ struct MessageViewRE: View {
                         )
                     }
                     
-                    if let embeds = messageData.embeds, !embeds.isEmpty {
+                    if !filteredEmbeds.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
-                            ForEach(embeds, id: \.self) { embed in
+                            ForEach(filteredEmbeds, id: \.self) { embed in
                                 EmbedCardView(embed: embed, isCurrentUser: isCurrentUser)
                             }
                         }
@@ -470,6 +478,30 @@ struct MessageContentViewRE: View {
     let maxWidth: CGFloat?
     let trailingTimestamp: String?
 
+    @AppStorage("privacyCustomLoadEmojis") private var privacyCustomLoadEmojis: Bool = false
+    @AppStorage("privacyMode") private var privacyModeRaw: String = PrivacyMode.defaultMode.rawValue
+    @AppStorage("discordEmojiReplacement") private var discordEmojiReplacement: String = ""
+    
+    private var privacyMode: PrivacyMode { PrivacyMode(rawValue: privacyModeRaw) ?? .standard }
+    private var privacyAllowsCustomEmojis: Bool {
+        switch privacyMode {
+        case .custom:
+            return privacyCustomLoadEmojis
+        case .privacy:
+            return false
+        default:
+            return true
+        }
+    }
+
+    private var containsStossyMoji: Bool {
+        messageData.content.range(of: ".stossymoji.", options: [.caseInsensitive]) != nil
+    }
+
+    private var shouldRenderEmojiImages: Bool {
+        privacyAllowsCustomEmojis || containsStossyMoji
+    }
+
     private var isEdited: Bool { editedTimestamp != nil }
     private var currentSide: MessageBubbleVisualConfiguration.Side {
         isCurrentUser ? configuration.currentUser : configuration.otherUser
@@ -477,12 +509,119 @@ struct MessageContentViewRE: View {
     private var textAlignment: TextAlignment { isCurrentUser ? .trailing : .leading }
     private var lineSpacing: CGFloat { 2 }
 
-    private var messageAttributedString: AttributedString {
-        (try? AttributedString(markdown: messageData.content, options: MessageContentViewRE.markdownOptions))
-            ?? AttributedString(messageData.content)
+    private var markdownContent: String {
+        if shouldRenderEmojiImages {
+            CustomEmojiRenderer.markdownString(from: messageData.content)
+        } else {
+            replaceEmojisInContent(messageData.content)
+        }
     }
 
-    private static let markdownOptions = AttributedString.MarkdownParsingOptions(allowsExtendedAttributes: true, interpretedSyntax: .full)
+    private var resolvedLineHeight: CGFloat {
+        #if os(iOS)
+        UIFont.preferredFont(forTextStyle: .body).lineHeight
+        #elseif os(macOS)
+        NSFont.preferredFont(forTextStyle: .body).boundingRectForFont.size.height
+        #else
+        18
+        #endif
+    }
+
+    private func replaceEmojisInContent(_ content: String) -> String {
+        let pattern = try! NSRegularExpression(pattern: "<(a?):([A-Za-z0-9_]+):([0-9]+)>")
+        let nsRange = NSRange(content.startIndex..<content.endIndex, in: content)
+        
+        var result = ""
+        var lastIndex = content.startIndex
+        
+        pattern.enumerateMatches(in: content, range: nsRange) { match, _, _ in
+            guard let match else { return }
+            let fullRange = Range(match.range(at: 0), in: content)!
+            let nameRange = Range(match.range(at: 2), in: content)!
+            let name = String(content[nameRange])
+            
+            let prefix = content[lastIndex..<fullRange.lowerBound]
+            result.append(contentsOf: prefix)
+            
+            result.append(replacement(for: name))
+            
+            lastIndex = fullRange.upperBound
+        }
+        
+        result.append(contentsOf: content[lastIndex...])
+        
+        return replaceStossyLinks(in: result)
+    }
+    
+    private func replacement(for name: String) -> String {
+        if !discordEmojiReplacement.isEmpty {
+            return discordEmojiReplacement
+        } else {
+            return ":\(name):"
+        }
+    }
+
+    private func replaceStossyLinks(in text: String) -> String {
+        var result = text
+
+        if let regex = try? NSRegularExpression(pattern: "(?<!\\!)\\[(.*?)\\]\\(([^)]+\\.stossymoji\\.[^)]+)\\)", options: []) {
+            let nsString = result as NSString
+            let matches = regex.matches(in: result, options: [], range: NSRange(location: 0, length: nsString.length))
+            for match in matches.reversed() {
+                guard match.numberOfRanges >= 3 else { continue }
+                let altRange = match.range(at: 1)
+                let urlRange = match.range(at: 2)
+                guard altRange.location != NSNotFound, urlRange.location != NSNotFound else { continue }
+                let altText = nsString.substring(with: altRange)
+                let urlText = nsString.substring(with: urlRange)
+                let replacementText = replacement(for: fallbackEmojiName(altText: altText, urlString: urlText))
+                if let swiftRange = Range(match.range, in: result) {
+                    result.replaceSubrange(swiftRange, with: replacementText)
+                }
+            }
+        }
+
+        if let regex = try? NSRegularExpression(pattern: "https?://[^\\s)]+\\.stossymoji\\.[^\\s)]+", options: [.caseInsensitive]) {
+            let nsString = result as NSString
+            let matches = regex.matches(in: result, options: [], range: NSRange(location: 0, length: nsString.length))
+            for match in matches.reversed() {
+                let urlText = nsString.substring(with: match.range)
+                let replacementText = replacement(for: fallbackEmojiName(altText: "", urlString: urlText))
+                if let swiftRange = Range(match.range, in: result) {
+                    result.replaceSubrange(swiftRange, with: replacementText)
+                }
+            }
+        }
+
+        return result
+    }
+
+    private func fallbackEmojiName(altText: String, urlString: String) -> String {
+        let trimmedAlt = altText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedAlt.isEmpty { return trimmedAlt }
+
+        if let url = URL(string: urlString) {
+            let candidate = url.lastPathComponent
+            return stripStossySuffix(from: candidate)
+        }
+
+        if let lastComponent = urlString.split(separator: "/").last {
+            return stripStossySuffix(from: String(lastComponent))
+        }
+
+        return urlString
+    }
+
+    private func stripStossySuffix(from filename: String) -> String {
+        if let range = filename.range(of: ".stossymoji.", options: .caseInsensitive) {
+            let encrypted = String(filename[..<range.lowerBound])
+            return EmojiEncryptionContext.decryptIfPossible(encrypted)
+        }
+        if let dotIndex = filename.firstIndex(of: ".") {
+            return String(filename[..<dotIndex])
+        }
+        return filename
+    }
 
     @ViewBuilder
     private var timestampBadge: some View {
@@ -516,8 +655,19 @@ struct MessageContentViewRE: View {
     
     @ViewBuilder
     private var messageContent: some View {
-        Text(messageAttributedString)
+        let base = Markdown(markdownContent)
+            .markdownTheme(.basic)
             .multilineTextAlignment(textAlignment)
+            .lineSpacing(lineSpacing)
+            .foregroundColor(currentSide.text)
+        
+        if shouldRenderEmojiImages {
+            base
+                .markdownImageProvider(DiscordEmojiImageProvider(lineHeight: resolvedLineHeight))
+                .markdownInlineImageProvider(DiscordEmojiInlineImageProvider(lineHeight: resolvedLineHeight))
+        } else {
+            base
+        }
     }
     
     @ViewBuilder

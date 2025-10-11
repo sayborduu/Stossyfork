@@ -13,6 +13,7 @@ struct StossycordApp: App {
     @StateObject var webSocketService: WebSocketService
     @StateObject var settingsManager: SettingsManager
     @StateObject var presenceManager: PresenceManager
+    @StateObject private var customEmojiManager = CustomEmojiManager()
     let keychain = KeychainSwift()
     @State var isPresented: Bool = false
     @State var isfirst: Bool = false
@@ -24,7 +25,13 @@ struct StossycordApp: App {
             "hideRestrictedChannels": false,
             "useNativePicker": true,
             "useRedesignedMessages": true,
-            "useDiscordFolders": true
+            "useDiscordFolders": true,
+            "privacyMode": PrivacyMode.defaultMode.rawValue,
+            "privacyCustomLoadEmojis": true,
+            "customEmojiStorageEnabled": false,
+            "customEmojiStoreID": "",
+            "customEmojiBlobToken": "",
+            "customEmojiBackendURL": "https://stossymoji.vercel.app"
         ])
 
         let sharedService = WebSocketService.shared
@@ -36,6 +43,7 @@ struct StossycordApp: App {
         WindowGroup {
             NavView(webSocketService: webSocketService)
                 .environmentObject(presenceManager)
+                .environmentObject(customEmojiManager)
                 .onAppear {
                     presenceManager.start()
                 }
@@ -64,7 +72,9 @@ struct StossycordApp: App {
                     }
                 }
                 .sheet(isPresented: $isPresented) {
-                    WelcomeView(webSocketService: webSocketService)
+                    WelcomeView(webSocketService: webSocketService) {
+                        isPresented = false
+                    }
                 }
                 .onAppear {
                     if let token = keychain.get("token"), !token.isEmpty {

@@ -37,6 +37,13 @@ struct ChannelView: View {
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var showNativePhotoPicker = false
     @State private var showCameraPicker = false
+    @AppStorage("customEmojiStorageEnabled") private var customEmojiEnabled = false
+    @AppStorage("customEmojiStoreID") private var customEmojiStoreID = ""
+    @AppStorage("customEmojiBlobToken") private var customEmojiToken = ""
+    @AppStorage("customEmojiBackendURL") private var customEmojiBackendURL = ""
+    @AppStorage("useCustomEmojiBackend") private var useCustomEmojiBackend = false
+    
+    @EnvironmentObject private var customEmojiManager: CustomEmojiManager
     
     private let keychain = KeychainSwift()
     
@@ -132,6 +139,15 @@ struct ChannelView: View {
         }
         .onAppear(perform: handleOnAppear)
         .onDisappear(perform: handleOnDisappear)
+        .onChange(of: customEmojiEnabled) { _ in
+            updateCustomEmojiConfiguration()
+        }
+        .onChange(of: customEmojiStoreID) { _ in
+            updateCustomEmojiConfiguration()
+        }
+        .onChange(of: customEmojiToken) { _ in
+            updateCustomEmojiConfiguration()
+        }
         .onChange(of: webSocketService.currentroles) { _ in
             updatePermissions()
         }
@@ -512,6 +528,7 @@ struct ChannelView: View {
         TabBarModifier.shared.hideTabBar()
         
         DispatchQueue.main.async {
+            updateCustomEmojiConfiguration()
             webSocketService.currentchannel = currentid
             getDiscordMessages(token: token, webSocketService: webSocketService)
             
@@ -568,6 +585,14 @@ struct ChannelView: View {
             webSocketService.currentchannel = ""
             webSocketService.currentroles.removeAll()
         }
+    }
+
+    private func updateCustomEmojiConfiguration() {
+        customEmojiManager.configure(
+            enabled: customEmojiEnabled,
+            storeID: customEmojiStoreID,
+            token: customEmojiToken
+        )
     }
     
     private func handleFileImport(result: Result<URL, Error>) {

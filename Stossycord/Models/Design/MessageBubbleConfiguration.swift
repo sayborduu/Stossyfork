@@ -34,6 +34,7 @@ struct MessageBubbleVisualConfiguration: Equatable {
     var horizontalPadding: CGFloat
     var currentUser: Side
     var otherUser: Side
+    var avatarCornerRadius: CGFloat = 4.0
     
     static func resolve(style: MessageBubbleStyle, customJSON: String) -> MessageBubbleVisualConfiguration {
         switch style {
@@ -58,7 +59,8 @@ struct MessageBubbleVisualConfiguration: Equatable {
         ungroupedVerticalPadding: CGFloat,
         horizontalPadding: CGFloat,
         currentUser: Side,
-        otherUser: Side
+        otherUser: Side,
+        avatarCornerRadius: CGFloat = 4.0
     ) {
         self.glassEffect = glassEffect
         self.cornerRadius = cornerRadius
@@ -69,6 +71,7 @@ struct MessageBubbleVisualConfiguration: Equatable {
         self.horizontalPadding = horizontalPadding
         self.currentUser = currentUser
         self.otherUser = otherUser
+        self.avatarCornerRadius = avatarCornerRadius
     }
     
     private static let defaultPadding = PaddingSet(top: 12, leading: 12, bottom: 12, trailing: 12)
@@ -94,7 +97,8 @@ struct MessageBubbleVisualConfiguration: Equatable {
         ungroupedVerticalPadding: 8,
         horizontalPadding: 4,
         currentUser: defaultCurrentSide,
-        otherUser: defaultOtherSide
+        otherUser: defaultOtherSide,
+        avatarCornerRadius: 8.0
     )
     
     private static let imessageAppearance = MessageBubbleVisualConfiguration(
@@ -114,11 +118,10 @@ struct MessageBubbleVisualConfiguration: Equatable {
             background: Color.gray,
             text: .primary,
             stroke: nil
-        )
+        ),
+        avatarCornerRadius: 8.0
     )
 }
-
-
 
 private struct CustomMessageBubbleConfiguration: Codable {
     struct Side: Codable {
@@ -143,6 +146,7 @@ private struct CustomMessageBubbleConfiguration: Codable {
     var horizontalPadding: Double?
     var currentUser: Side?
     var otherUser: Side?
+    var avatarCornerRadius: Double?
     
     static func decode(json: String) -> CustomMessageBubbleConfiguration? {
         let trimmed = json.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -188,6 +192,9 @@ private extension MessageBubbleVisualConfiguration {
         }
         base.currentUser = MessageBubbleVisualConfiguration.resolve(side: base.currentUser, override: custom.currentUser)
         base.otherUser = MessageBubbleVisualConfiguration.resolve(side: base.otherUser, override: custom.otherUser)
+        if let avatarRounding = custom.avatarCornerRadius {
+            base.avatarCornerRadius = CGFloat(avatarRounding)
+        }
         self = base
     }
     
@@ -237,7 +244,8 @@ extension MessageBubbleVisualConfiguration {
                 "background": "#E5E5EA",
                 "text": "#000000",
                 "stroke": "#C7C7CC"
-            }
+            },
+            "avatarCornerRadius": 4.0
         }
         """
 }

@@ -2,7 +2,7 @@
 //  LeaveServer.swift
 //  Stossycord
 //
-//  Created by GitHub Copilot on 05/10/2025.
+//  Created by Alex Badi on 05/10/2025.
 //
 
 import Foundation

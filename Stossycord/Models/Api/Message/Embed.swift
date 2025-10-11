@@ -123,3 +123,38 @@ struct EmbedField: Codable, Hashable {
         case isInline = "inline"
     }
 }
+
+extension Embed {
+    var containsStossyMoji: Bool {
+        func urlContainsStossy(_ string: String?) -> Bool {
+            guard let string = string?.lowercased() else { return false }
+            return string.contains(".stossymoji.")
+        }
+
+        if urlContainsStossy(url) {
+            return true
+        }
+
+        if urlContainsStossy(image?.url) || urlContainsStossy(image?.proxyURL) {
+            return true
+        }
+
+        if urlContainsStossy(thumbnail?.url) || urlContainsStossy(thumbnail?.proxyURL) {
+            return true
+        }
+
+        if urlContainsStossy(video?.url) || urlContainsStossy(video?.proxyURL) {
+            return true
+        }
+
+        if urlContainsStossy(provider?.url) {
+            return true
+        }
+
+        if urlContainsStossy(author?.url) || urlContainsStossy(author?.iconURL) || urlContainsStossy(author?.proxyIconURL) {
+            return true
+        }
+
+        return false
+    }
+}

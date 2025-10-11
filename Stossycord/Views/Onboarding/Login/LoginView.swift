@@ -10,9 +10,11 @@ import KeychainSwift
 import WebKit
 
 struct LoginView: View {
-    @Environment(\.dismiss) var dismiss
     @StateObject var webSocketService: WebSocketService
+    let onLoginSuccess: () -> Void
+
     @StateObject private var viewModel = LoginViewModel()
+    @State private var didCompleteLogin = false
     
     let keychain = KeychainSwift()
     
@@ -148,11 +150,12 @@ struct LoginView: View {
         .padding()
         .interactiveDismissDisabled()
         .onChange(of: viewModel.token) { newToken in
-            if !newToken.isEmpty {
-                keychain.set(newToken, forKey: "token")
-                dismiss()
-                webSocketService.connect()
-            }
+            guard !newToken.isEmpty, !didCompleteLogin else { return }
+
+            didCompleteLogin = true
+            keychain.set(newToken, forKey: "token")
+            webSocketService.connect()
+            onLoginSuccess()
         }
         .onDisappear() {
             HiddenDiscordWebView.Coordinator.qrTimer?.invalidate()
