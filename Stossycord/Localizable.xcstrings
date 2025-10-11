@@ -519,7 +519,11 @@
         }
       }
     },
+    "Disable this to only use Stossycord custom emojis." : {
+
+    },
     "Disable this to only use your Stossycord custom emoji cache." : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
