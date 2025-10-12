@@ -282,7 +282,14 @@
       }
     },
     "Channel marked as NSFW" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Canal marcado como NSFW"
+          }
+        }
+      }
     },
     "Choose your privacy mode" : {
       "localizations" : {
@@ -403,7 +410,14 @@
       }
     },
     "Continue and don't show again" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar y no mostrar de nuevo"
+          }
+        }
+      }
     },
     "Copy" : {
       "localizations" : {
@@ -526,7 +540,14 @@
       }
     },
     "Disable this to only use Stossycord custom emojis." : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactiva esto para usar emojis personalizados de Stossycord únicamente."
+          }
+        }
+      }
     },
     "Disable this to only use your Stossycord custom emoji cache." : {
       "extractionState" : "stale",
@@ -700,7 +721,14 @@
       }
     },
     "If you proceed, you confirm that you are at least 18 years old and consent to view adult content." : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si continuas, afirmas que tienes 18 años o más y consientes ver contenido adulto."
+          }
+        }
+      }
     },
     "Invalid URL" : {
       "localizations" : {
@@ -813,7 +841,14 @@
       }
     },
     "minecraft avatars fr" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "avatares de minecraft fr"
+          }
+        }
+      }
     },
     "Multiple choice" : {
       "localizations" : {
@@ -2244,7 +2279,14 @@
       }
     },
     "Squared avatars" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatares cuadrados"
+          }
+        }
+      }
     },
     "Start using Stossycord" : {
       "localizations" : {
@@ -2277,7 +2319,14 @@
       }
     },
     "This channel is marked as NSFW and may contain explicit adult content. You must be 18 years of age or older to view this channel. Do you want to continue?" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este canal está marcado como NSFW y puede contener contenido explícito adulto. Debes de tener 18 años o más para ver este canal. ¿Quieres continuar?"
+          }
+        }
+      }
     },
     "This endpoint is used to send emojis on Discord. Your credentials never go there. It simply shortens the default Blob URL for Discord messages." : {
       "localizations" : {
@@ -2488,7 +2537,14 @@
       }
     },
     "Your Discord account does not support viewing NSFW content." : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu cuenta de Discord no permite ver contenido NSFW."
+          }
+        }
+      }
     },
     "Your emojis" : {
       "localizations" : {

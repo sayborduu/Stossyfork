@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MarkdownUI
 
 struct PollMessageView: View {
     let message: Message
@@ -20,6 +21,22 @@ struct PollMessageView: View {
     @State private var debounceWorkItem: DispatchWorkItem?
     @State private var requestSequence: Int = 0
     @State private var activeRequestId: Int = 0
+
+    @AppStorage("privacyCustomLoadEmojis") private var privacyCustomLoadEmojis: Bool = false
+    @AppStorage("privacyMode") private var privacyModeRaw: String = PrivacyMode.defaultMode.rawValue
+    @AppStorage("discordEmojiReplacement") private var discordEmojiReplacement: String = ""
+    
+    private var privacyMode: PrivacyMode { PrivacyMode(rawValue: privacyModeRaw) ?? .standard }
+    private var privacyAllowsCustomEmojis: Bool {
+        switch privacyMode {
+        case .custom:
+            return privacyCustomLoadEmojis
+        case .privacy:
+            return false
+        default:
+            return true
+        }
+    }
 
     private var answers: [PollAnswer] {
         poll.answers ?? []
@@ -183,10 +200,29 @@ struct PollMessageView: View {
                     }
                     HStack(spacing: 12) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(optionTitle(for: answer, index: index))
-                                .font(.subheadline.weight(voted ? .semibold : .regular))
-                                .foregroundStyle(.primary)
-                                .lineLimit(2)
+                            let shouldRenderEmojiImages = privacyAllowsCustomEmojis && answer.pollMedia?.emoji?.id != nil
+
+                            if shouldRenderEmojiImages {
+                                let markdownContent = CustomEmojiRenderer.markdownString(from: optionTitle(for: answer, index: index))
+                                let resolvedLineHeight = UIFont.preferredFont(forTextStyle: .subheadline).lineHeight
+
+                                let base = Markdown(markdownContent)
+                                    .markdownTheme(.basic)
+                                    .multilineTextAlignment(.leading)
+                                    .lineSpacing(2)
+                                    .foregroundColor(.primary)
+                                    .font(.subheadline.weight(voted ? .semibold : .regular))
+                                    .lineLimit(2)
+
+                                base
+                                    .markdownImageProvider(DiscordEmojiImageProvider(lineHeight: resolvedLineHeight))
+                                    .markdownInlineImageProvider(DiscordEmojiInlineImageProvider(lineHeight: resolvedLineHeight))
+                            } else {
+                                Text(optionTitle(for: answer, index: index))
+                                    .font(.subheadline.weight(voted ? .semibold : .regular))
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(2)
+                            }
                             Text(voteLabel(for: voteCount))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
@@ -206,9 +242,9 @@ struct PollMessageView: View {
             }
             .frame(height: 60)
         }
-        .buttonStyle(.plain)
-        .disabled(isFinalized || token.isEmpty)
-        .accessibilityLabel(optionTitle(for: answer, index: index))
+    .buttonStyle(.plain)
+    .disabled(isFinalized || token.isEmpty)
+    .accessibilityLabel(optionAccessibilityLabel(for: answer, index: index))
     }
 
     private func toggleVote(for answer: PollAnswer) {
@@ -373,8 +409,16 @@ struct PollMessageView: View {
 
     private func optionTitle(for answer: PollAnswer, index: Int) -> String {
         var components: [String] = []
-        if let emoji = answer.pollMedia?.emoji?.name {
+        if answer.pollMedia?.emoji?.id == nil, let emoji = answer.pollMedia?.emoji?.name {
             components.append(emoji)
+        } else if let emoji = answer.pollMedia?.emoji?.name, !privacyAllowsCustomEmojis {
+            components.append(getDiscordEmojiReplacement(for: emoji))
+        } else if privacyAllowsCustomEmojis,
+                  let emojiId = answer.pollMedia?.emoji?.id,
+                  let emojiName = answer.pollMedia?.emoji?.name {
+            let isAnimated = answer.pollMedia?.emoji?.animated == true
+            let animationPrefix = isAnimated ? "a" : ""
+            components.append("<\(animationPrefix.isEmpty ? "" : animationPrefix):\(emojiName):\(emojiId)>")
         }
         if let text = answer.pollMedia?.text, !text.isEmpty {
             components.append(text)
@@ -383,6 +427,28 @@ struct PollMessageView: View {
             components.append("Option \(index + 1)")
         }
         return components.joined(separator: " ")
+    }
+
+    private func optionAccessibilityLabel(for answer: PollAnswer, index: Int) -> String {
+        var components: [String] = []
+        if let emojiName = answer.pollMedia?.emoji?.name, !emojiName.isEmpty {
+            components.append(emojiName)
+        }
+        if let text = answer.pollMedia?.text, !text.isEmpty {
+            components.append(text)
+        }
+        if components.isEmpty {
+            components.append("Option \(index + 1)")
+        }
+        return components.joined(separator: " ")
+    }
+
+    private func getDiscordEmojiReplacement(for name: String) -> String {
+        if !discordEmojiReplacement.isEmpty {
+            return discordEmojiReplacement
+        } else {
+            return ":\(name):"
+        }
     }
 
     private func voteLabel(for count: Int) -> String {
