@@ -34,6 +34,7 @@ struct SettingsView: View {
     @AppStorage(DesignSettingsKeys.messageBubbleStyle) private var messageStyleRawValue: String = MessageBubbleStyle.imessage.rawValue
     @AppStorage(DesignSettingsKeys.showSelfAvatar) private var showSelfAvatar: Bool = true
     @AppStorage(DesignSettingsKeys.customMessageBubbleJSON) private var customBubbleJSON: String = ""
+    @AppStorage("useSquaredAvatars") private var useSquaredAvatars: Bool = false
     @AppStorage("privacyMode") private var privacyModeRawValue: String = PrivacyMode.defaultMode.rawValue
     @AppStorage("privacyCustomLoadEmojis") private var privacyCustomLoadEmojis: Bool = true
     @AppStorage("discordEmojiReplacement") private var discordEmojiReplacement: String = ""
@@ -485,6 +486,9 @@ struct SettingsView: View {
 
         Toggle("settings.toggle.showSelfAvatar", isOn: $showSelfAvatar)
             .help(Text("settings.toggle.showSelfAvatar.help"))
+
+        Toggle("Squared avatars", isOn: $useSquaredAvatars)
+            .help(Text("minecraft avatars fr"))
 
         let selectedStyle = MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .imessage
         if selectedStyle == .custom {

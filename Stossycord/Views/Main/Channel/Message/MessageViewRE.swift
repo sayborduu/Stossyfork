@@ -29,6 +29,7 @@ struct MessageViewRE: View {
     @AppStorage(DesignSettingsKeys.messageBubbleStyle) private var messageStyleRawValue: String = MessageBubbleStyle.imessage.rawValue
     @AppStorage(DesignSettingsKeys.showSelfAvatar) private var showSelfAvatar: Bool = true
     @AppStorage(DesignSettingsKeys.customMessageBubbleJSON) private var customBubbleJSON: String = ""
+    @AppStorage("useSquaredAvatars") private var useSquaredAvatars: Bool = false
     @State private var showTimestampOverlay: Bool = false
     @State private var timestampHideTask: DispatchWorkItem?
     @State private var availableWidth: CGFloat = 0
@@ -106,7 +107,33 @@ struct MessageViewRE: View {
 
     private var contentStackSpacing: CGFloat { 6 }
     
+    private var isThreadStarterMessage: Bool {
+        messageData.type == 18
+    }
+
+    private var threadStarterText: String {
+        let authorName = messageData.author.currentname
+        let trimmedContent = messageData.content.trimmingCharacters(in: .whitespacesAndNewlines)
+        let contentText = trimmedContent.isEmpty ? "Untitled thread" : trimmedContent
+        let suffixedContent: String
+        if contentText.hasSuffix(".") {
+            suffixedContent = contentText
+        } else {
+            suffixedContent = "\(contentText)."
+        }
+        return "[thread icon] \(authorName) started a new thread \(suffixedContent)"
+    }
+
     var body: some View {
+        if isThreadStarterMessage {
+            threadStarterBody
+        } else {
+            regularBody
+        }
+    }
+
+    @ViewBuilder
+    private var regularBody: some View {
         ZStack(alignment: overlayAlignment) {
             HStack(alignment: verticalAlignment, spacing: horizontalSpacing) {
                 if !isCurrentUser {
@@ -222,6 +249,16 @@ struct MessageViewRE: View {
             timestampHideTask?.cancel()
             showTimestampOverlay = false
         }
+    }
+
+    private var threadStarterBody: some View {
+        Text(threadStarterText)
+            .font(.callout)
+            .foregroundColor(.secondary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
     }
     
     @ViewBuilder

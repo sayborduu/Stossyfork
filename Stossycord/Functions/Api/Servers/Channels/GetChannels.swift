@@ -42,6 +42,9 @@ func getDiscordChannels(serverId: String, token: String, completion: @escaping (
         } else if let data = data {
             do {
                 if let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
+                    if let jsonString = String(data: data, encoding: .utf8) {
+                        print("Raw JSON:\n\(jsonString)")
+                    }
                     
                     do {
                         let channels = try JSONDecoder().decode([Channel].self, from: data)

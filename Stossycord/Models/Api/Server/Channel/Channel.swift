@@ -69,6 +69,7 @@ struct Channel: Codable, Hashable, Identifiable {
     let defaultReactionEmoji: ForumReactionEmoji?
     let defaultSortOrder: Int?
     let defaultForumLayout: Int?
+    let nsfw: Bool?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -95,6 +96,7 @@ struct Channel: Codable, Hashable, Identifiable {
         case defaultReactionEmoji = "default_reaction_emoji"
         case defaultSortOrder = "default_sort_order"
         case defaultForumLayout = "default_forum_layout"
+        case nsfw
     }
 }
 

@@ -14,6 +14,10 @@ struct ChannelsListView: View {
     let keychain = KeychainSwift()
     @StateObject var webSocketService: WebSocketService
     @AppStorage("hideRestrictedChannels") private var hideRestrictedChannels: Bool = false
+    @AppStorage("removeNSFWChannelWarnings") private var removeNSFWChannelWarnings: Bool = false
+    @State private var showingNSFWWarning = false
+    @State private var pendingChannel: Channel?
+    @State private var navigateToChannel = false
 
     var body: some View {
         channelsList
@@ -42,6 +46,28 @@ struct ChannelsListView: View {
                         }
                     }
                 }
+            }
+        }
+        .background(
+            NavigationLink(
+                destination: Group {
+                    if let channel = pendingChannel {
+                        ChannelView(
+                            webSocketService: webSocketService,
+                            currentchannelname: formattedName(for: channel, isThread: channel.isThread),
+                            currentid: channel.id,
+                            currentGuild: guild
+                        )
+                    }
+                },
+                isActive: $navigateToChannel
+            ) {
+                EmptyView()
+            }
+        )
+        .onChange(of: navigateToChannel) { newValue in
+            if !newValue {
+                pendingChannel = nil
             }
         }
     }
@@ -122,17 +148,171 @@ struct ChannelsListView: View {
     @ViewBuilder
     private func channelRow(channel: Channel, category: Category?, isThread: Bool) -> some View {
         if channel.isTextLike {
-            NavigationLink {
-                ChannelView(
-                    webSocketService: webSocketService,
-                    currentchannelname: formattedName(for: channel, isThread: isThread),
-                    currentid: channel.id,
-                    currentGuild: guild
-                )
-            } label: {
-                channelLabel(for: channel, isThread: isThread)
+            if channel.nsfw == true && !removeNSFWChannelWarnings {
+                Button {
+                    pendingChannel = channel
+                    showingNSFWWarning = true
+                } label: {
+                    channelLabel(for: channel, isThread: isThread)
+                }
+                .disabled(channel.threadMetadata?.archived == true)
+                .sheet(isPresented: $showingNSFWWarning) {
+                    VStack(spacing: 20) {
+                        VStack(alignment: .leading, spacing: 24) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 64))
+                                .foregroundColor(.yellow)
+                                .padding(.vertical, 16)
+
+                            if webSocketService.currentUser.nsfwAllowed == false {
+                                Text("Your Discord account does not support viewing NSFW content.")
+                                    .font(.system(size: 38, weight: .bold))
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: 600, alignment: .leading)
+                            } else {
+                                Text("Channel marked as NSFW")
+                                    .font(.system(size: 38, weight: .bold))
+
+                                Text("This channel is marked as NSFW and may contain explicit adult content. You must be 18 years of age or older to view this channel. Do you want to continue?")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: 600, alignment: .leading)
+
+                                Text("If you proceed, you confirm that you are at least 18 years old and consent to view adult content.")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: 600, alignment: .leading)
+                            }
+                        }
+                        .padding(.horizontal, 34)
+
+                        Spacer()
+
+                        VStack(spacing: 12) {
+                            if webSocketService.currentUser.nsfwAllowed == false {
+                                if #available(iOS 26.0, *) {
+                                    Button(action: {
+                                        showingNSFWWarning = false
+                                    }) {
+                                        Text("common.nevermind")
+                                            .frame(maxWidth: .infinity)
+                                            .frame(minHeight: 40)
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .glassEffect(.regular)
+                                } else {
+                                    Button(action: {
+                                        showingNSFWWarning = false
+                                    }) {
+                                        Text("common.nevermind")
+                                            .frame(maxWidth: .infinity)
+                                        .frame(minHeight: 56)
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                            } else {
+                                if #available(iOS 26.0, *) {
+                                    Button(action: {
+                                        showingNSFWWarning = false
+                                        navigateToChannel = true
+                                    }) {
+                                        Text("Continue")
+                                            .frame(maxWidth: .infinity)
+                                            .frame(minHeight: 40)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.red)
+                                    .glassEffect(.regular)
+
+                                    Button(action: {
+                                        showingNSFWWarning = false
+                                        removeNSFWChannelWarnings = true
+                                        navigateToChannel = true
+                                    }) {
+                                        Text("Continue and don't show again")
+                                            .frame(maxWidth: .infinity)
+                                            .frame(minHeight: 40)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.red)
+                                    .glassEffect(.regular)
+
+                                    Button(action: {
+                                        showingNSFWWarning = false
+                                    }) {
+                                        Text("common.nevermind")
+                                            .frame(maxWidth: .infinity)
+                                            .frame(minHeight: 40)
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .glassEffect(.regular)
+                                } else {
+                                    Button(action: {
+                                        showingNSFWWarning = false
+                                        navigateToChannel = true
+                                    }) {
+                                        Text("Continue")
+                                            .frame(maxWidth: .infinity)
+                                            .frame(minHeight: 56)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.red)
+
+                                    Button(action: {
+                                        showingNSFWWarning = false
+                                        removeNSFWChannelWarnings = true
+                                        navigateToChannel = true
+                                    }) {
+                                        Text("Continue and don't show again")
+                                            .frame(maxWidth: .infinity)
+                                            .frame(minHeight: 56)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.red)
+
+                                    Button(action: {
+                                        showingNSFWWarning = false
+                                    }) {
+                                        Text("common.nevermind")
+                                            .frame(maxWidth: .infinity)
+                                        .frame(minHeight: 56)
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 20)
+                    }
+                    .padding(.top, 20)
+                    .background {
+                        #if canImport(UIKit)
+                        Color(UIColor.systemBackground)
+                        #elseif canImport(AppKit)
+                        Color(NSColor.windowBackgroundColor)
+                        #else
+                        Color(.clear)
+                        #endif
+                    }
+                    #if !os(iOS)
+                    .frame(maxHeight: .infinity)
+                    #endif
+                }
+            } else {
+                NavigationLink {
+                    ChannelView(
+                        webSocketService: webSocketService,
+                        currentchannelname: formattedName(for: channel, isThread: isThread),
+                        currentid: channel.id,
+                        currentGuild: guild
+                    )
+                } label: {
+                    channelLabel(for: channel, isThread: isThread)
+                }
+                .disabled(channel.threadMetadata?.archived == true)
             }
-            .disabled(channel.threadMetadata?.archived == true)
         } else {
             channelLabel(for: channel, isThread: isThread)
                 .foregroundStyle(.secondary)

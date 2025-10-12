@@ -281,6 +281,9 @@
         }
       }
     },
+    "Channel marked as NSFW" : {
+
+    },
     "Choose your privacy mode" : {
       "localizations" : {
         "es" : {
@@ -398,6 +401,9 @@
           }
         }
       }
+    },
+    "Continue and don't show again" : {
+
     },
     "Copy" : {
       "localizations" : {
@@ -693,6 +699,9 @@
         }
       }
     },
+    "If you proceed, you confirm that you are at least 18 years old and consent to view adult content." : {
+
+    },
     "Invalid URL" : {
       "localizations" : {
         "es" : {
@@ -802,6 +811,9 @@
           }
         }
       }
+    },
+    "minecraft avatars fr" : {
+
     },
     "Multiple choice" : {
       "localizations" : {
@@ -2231,6 +2243,9 @@
         }
       }
     },
+    "Squared avatars" : {
+
+    },
     "Start using Stossycord" : {
       "localizations" : {
         "es" : {
@@ -2260,6 +2275,9 @@
           }
         }
       }
+    },
+    "This channel is marked as NSFW and may contain explicit adult content. You must be 18 years of age or older to view this channel. Do you want to continue?" : {
+
     },
     "This endpoint is used to send emojis on Discord. Your credentials never go there. It simply shortens the default Blob URL for Discord messages." : {
       "localizations" : {
@@ -2468,6 +2486,9 @@
           }
         }
       }
+    },
+    "Your Discord account does not support viewing NSFW content." : {
+
     },
     "Your emojis" : {
       "localizations" : {

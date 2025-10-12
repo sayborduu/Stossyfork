@@ -1092,6 +1092,7 @@ class WebSocketService: ObservableObject {
             let data = try JSONSerialization.data(withJSONObject: payload, options: [])
             let decoder = JSONDecoder()
             let message = try decoder.decode(Message.self, from: data)
+            print("Received message: \(message) in channel \(channelId)")
             DispatchQueue.main.async {
                 if self.currentchannel == message.channelId {
                     self.data.append(message)

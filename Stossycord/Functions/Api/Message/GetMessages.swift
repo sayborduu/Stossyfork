@@ -60,7 +60,7 @@ func getDiscordMessages(token: String, webSocketService: WebSocketService) {
                         let decoder = JSONDecoder()
                         let currentmessage = try decoder.decode(Message.self, from: jsonData)
                         
-                        
+
                         if !webSocketService.data.contains(where: { $0.messageId == currentmessage.messageId }) {
                             DispatchQueue.main.async {
                                 

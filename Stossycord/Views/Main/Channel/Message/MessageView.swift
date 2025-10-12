@@ -127,6 +127,9 @@ struct AvatarView: View {
     let onProfileTap: (() -> Void)?
     @AppStorage("disableAnimatedAvatars") private var disableAnimatedAvatars: Bool = false
     @AppStorage("disableProfilePictureTap") private var disableProfilePictureTap: Bool = false
+    @AppStorage("useSquaredAvatars") private var useSquaredAvatars: Bool = false
+    
+    private var cornerRadius: CGFloat { useSquaredAvatars ? 8 : 18 }
     
     var body: some View {
         if let url = avatarURL {
@@ -136,22 +139,18 @@ struct AvatarView: View {
                 AsyncGiffy(url: url) { phase in
                     switch phase {
                     case .loading:
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
+                        placeholderShape
                             .overlay(ProgressView().scaleEffect(0.6))
                             .frame(width: 36, height: 36)
-                            .clipShape(Circle())
                     case .error:
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
+                        placeholderShape
                             .frame(width: 36, height: 36)
-                            .clipShape(Circle())
                     case .success(let giffy):
                         giffy
                             .aspectRatio(contentMode: .fill)
                             .frame(width: 36, height: 36)
                             .clipped()
-                            .clipShape(Circle())
+                            .cornerRadius(cornerRadius)
                     }
                 }
                 .onTapGesture {
@@ -162,7 +161,7 @@ struct AvatarView: View {
                 #else
                 AnimatedWebImage(url: url)
                     .frame(width: 36, height: 36)
-                    .clipShape(Circle())
+                    .cornerRadius(cornerRadius)
                     .onTapGesture {
                         if !disableProfilePictureTap {
                             onProfileTap?()
@@ -175,15 +174,14 @@ struct AvatarView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                 } placeholder: {
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
+                    placeholderShape
                         .overlay(
                             ProgressView()
                                 .scaleEffect(0.6)
                         )
                 }
                 .frame(width: 36, height: 36)
-                .clipShape(Circle())
+                .cornerRadius(cornerRadius)
                 .onTapGesture {
                     if !disableProfilePictureTap {
                         onProfileTap?()
@@ -191,14 +189,25 @@ struct AvatarView: View {
                 }
             }
         } else {
-            Circle()
-                .fill(Color.gray.opacity(0.3))
+            placeholderShape
                 .frame(width: 36, height: 36)
                 .onTapGesture {
                     if !disableProfilePictureTap {
                         onProfileTap?()
                     }
                 }
+        }
+    }
+    
+    private var placeholderShape: some View {
+        Group {
+            if useSquaredAvatars {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color.gray.opacity(0.3))
+            } else {
+                Circle()
+                    .fill(Color.gray.opacity(0.3))
+            }
         }
     }
     
