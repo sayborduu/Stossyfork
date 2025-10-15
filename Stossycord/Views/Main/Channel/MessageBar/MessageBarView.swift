@@ -196,7 +196,7 @@ private extension MessageBarView {
     var attachmentBackground: some View {
         if #available(iOS 26.0, *) {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .glassEffect(.clear)
+                .glassEffect(.clear.interactive())
                 .background(.black.opacity(0.3))
         } else {
             RoundedRectangle(cornerRadius: baseInputHeight / 2, style: .continuous)
@@ -208,7 +208,7 @@ private extension MessageBarView {
     var inputBackground: some View {
         if #available(iOS 26.0, *) {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .glassEffect(.clear, in: .rect(cornerRadius: 24.0))
+                .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24.0))
                 .background(.black.opacity(0.3))
         } else {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
