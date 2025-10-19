@@ -1,5 +1,5 @@
 {
-  "originHash" : "d81b58bd7db3478b51975d80698d64de335bfa0f77ce8b87b6505cf1fd463165",
+  "originHash" : "6eadea6fe774404e9529c5a173cb9d922cb6634a4058080807fd0a776deabdcf",
   "pins" : [
     {
       "identity" : "cocoaasyncsocket",
@@ -53,6 +53,15 @@
       "state" : {
         "branch" : "main",
         "revision" : "65e1465e593d2b0be6ac12256f2866a18d26e211"
+      }
+    },
+    {
+      "identity" : "sfsymbolspicker",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alessiorubicini/SFSymbolsPicker",
+      "state" : {
+        "revision" : "73c909b8a7fc77a30dd04208e33f759f8b52c4c8",
+        "version" : "1.0.6"
       }
     },
     {

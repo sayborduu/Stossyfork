@@ -17,6 +17,7 @@ import AppKit
 struct DiscordEmojiInlineImageProvider: InlineImageProvider {
     let lineHeight: CGFloat
     private let defaultProvider = DefaultInlineImageProvider()
+    private let privacyHelper = EmojiPrivacyHelper()
 
     func image(with url: URL, label: String) async throws -> Image {
         if url.absoluteString.contains(".stossymoji.") {

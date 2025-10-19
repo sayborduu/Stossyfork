@@ -16,6 +16,7 @@ struct MessageBarView: View {
 
     let onMessageChange: (String) -> Void
     let onSubmit: () -> Void
+    let onVoiceMessageSend: (VoiceRecordingManager.Clip) -> Void
 
     @AppStorage("customEmojiStorageEnabled") private var customEmojiEnabled = false
     @AppStorage("customEmojiStoreID") private var storeID = ""
@@ -23,13 +24,23 @@ struct MessageBarView: View {
     @AppStorage("customEmojiBackendURL") private var backendURL = ""
     @AppStorage("useCustomEmojiBackend") private var useCustomEmojiBackend = false
     @AppStorage("customEmojiHyperlinkText") private var hyperlinkText = ""
+    @AppStorage("voiceMessagesEnabled") private var voiceMessagesEnabled = true
 
     @EnvironmentObject var customEmojiManager: CustomEmojiManager
+    @StateObject private var voiceRecorder = VoiceRecordingManager()
     @State private var showEmojiPicker = false
     @State private var filteredEmojis: [VercelBlobService.Emoji] = []
     @FocusState private var isMessageFieldFocused: Bool
+    @State private var isRecordingVoice = false
+    @State private var isMicPressed = false
+    @State private var shouldCancelVoiceSend = false
+    @State private var recordingErrorMessage: String?
+    @State private var voiceStartTask: Task<Void, Never>?
 
     private let baseInputHeight: CGFloat = 46
+    private var isOneLine: Bool {
+        !message.contains("\n") && message.count < 50
+    }
 
     var body: some View {
         VStack(spacing: 10) {
@@ -54,15 +65,24 @@ struct MessageBarView: View {
             }
 
             if permissionStatus.canSendMessages {
-                HStack(alignment: .bottom, spacing: 12) {
-                    attachmentButton
-
-                    inputStack
+                if #available(iOS 26.0, *) {
+                    GlassEffectContainer {
+                        HStack(alignment: .bottom, spacing: 12) {
+                            attachmentButton
+                            inputStack
+                        }
+                    }
+                } else {
+                    HStack(alignment: .bottom, spacing: 12) {
+                        attachmentButton
+                        inputStack
+                    }
                 }
             }
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 8)
+            .padding(.bottom, 18) // Move higher above bottom edge
         .background(barBackground)
         .onChange(of: isMessageFieldFocused) { focused in
             if !focused {
@@ -75,13 +95,24 @@ struct MessageBarView: View {
         .onChange(of: customEmojiManager.state) { _ in
             updateEmojiSuggestions(for: message)
         }
-        
+        .alert("Voice Recording Failed", isPresented: Binding(
+            get: { recordingErrorMessage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    recordingErrorMessage = nil
+                }
+            }
+        )) {
+            Button("OK", role: .cancel) {
+                recordingErrorMessage = nil
+            }
+        } message: {
+            Text(recordingErrorMessage ?? "Unknown error")
+        }
     }
-}
 
-private extension MessageBarView {
     @ViewBuilder
-    var attachmentButton: some View {
+    private var attachmentButton: some View {
         if permissionStatus.canAttachFiles {
             Button {
                 if useNativePicker {
@@ -96,12 +127,7 @@ private extension MessageBarView {
                     .foregroundStyle(.blue)
                     .contentShape(Circle())
             }
-            .buttonStyle(.plain)
-            .background(
-                RoundedRectangle(cornerRadius: baseInputHeight, style: .continuous)
-                    .fill(Color.black.opacity(0.3))
-            )
-            .background(attachmentBackground)
+            .glassCircleButton(diameter: baseInputHeight, tint: .blue, interactive: true, clear: true)
             .confirmationDialog("Select Attachment", isPresented: $showNativePicker) {
                 Button("Photos") {
                     showNativePhotoPicker = true
@@ -115,38 +141,53 @@ private extension MessageBarView {
                 }
                 Button("Cancel", role: .cancel) { }
             }
-            .frame(width: baseInputHeight, height: baseInputHeight)
         }
     }
 
     @ViewBuilder
-    var inputStack: some View {
-        HStack(alignment: .bottom, spacing: 0) {
-            TextField(placeholder, text: $message, axis: .vertical)
-                .lineLimit(1...6)
-                .textFieldStyle(.plain)
-                .multilineTextAlignment(.leading)
-                .padding(.vertical, 10)
+    private var inputStack: some View {
+        HStack(alignment: .center, spacing: 0) {
+            if isRecordingVoice {
+                VoiceRecordingVisualizer(
+                    samples: voiceRecorder.displaySamples,
+                    duration: voiceRecorder.duration
+                )
                 .padding(.leading, 6)
-                .padding(.trailing, 60)
-                .focused($isMessageFieldFocused)
-                .onChange(of: message) { newValue in
-                    onMessageChange(newValue)
-                    updateEmojiSuggestions(for: newValue)
-                }
-                .onSubmit {
-                    sendMessage()
-                }
+                .padding(.trailing, 46)
+            } else {
+                TextField(placeholder, text: $message, axis: .vertical)
+                    .lineLimit(1...6)
+                    .textFieldStyle(.plain)
+                    .multilineTextAlignment(.leading)
+                    .padding(.vertical, 10)
+                    .padding(.leading, 6)
+                    .padding(.trailing, 60)
+                    .focused($isMessageFieldFocused)
+                    .disabled(isRecordingVoice)
+                    .onChange(of: message) { newValue in
+                        onMessageChange(newValue)
+                        updateEmojiSuggestions(for: newValue)
+                    }
+                    .onSubmit {
+                        sendMessage()
+                    }
+            }
         }
         .padding(.leading, 12)
-        .padding(.trailing, 4)
-        .frame(minHeight: baseInputHeight, alignment: .bottom)
-        .background(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color.black.opacity(0.3))
-        )
-        .background(inputBackground)
+        .padding(.trailing, 8)
+        /*.frame(minHeight: baseInputHeight, alignment: .bottom)
+        .background {
+            if #available(iOS 26.0, *) {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .background(.black.opacity(0.3))
+            } else {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(Color(.secondarySystemBackground))
+            }
+        }
+        .glassedEffect(in: .capsule, interactive: true, clear: true)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        */
         .overlay(alignment: .topLeading) {
             if showEmojiPicker {
                 EmojiSuggestionList(emojis: filteredEmojis, onSelect: { emoji in
@@ -157,7 +198,7 @@ private extension MessageBarView {
                 .zIndex(1)
             }
         }
-        .overlay(alignment: .trailing) {
+        .overlay(alignment: isOneLine ? .trailing : .bottomTrailing) {
             if canSendCurrentMessage {
                 Button(action: sendMessage) {
                     Image(systemName: "arrow.up.circle.fill")
@@ -167,19 +208,18 @@ private extension MessageBarView {
                 }
                 .accessibilityLabel("Send Message")
                 .padding(.trailing, 6)
-            } else {
-                Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(.gray)
-                    .padding(10)
-                    .opacity(0)
+                .transition(.scale)
+            } else if message.isEmpty && voiceMessagesEnabled {
+                voiceRecordButton
                     .padding(.trailing, 6)
+                    .transition(.opacity)
             }
         }
+        .glassCustomShape(in: RoundedRectangle(cornerRadius: 24, style: .continuous), minHeight: baseInputHeight, alignment: .bottom, tint: .white, interactive: true, clear: true)
     }
 
     @ViewBuilder
-    var barBackground: some View {
+    private var barBackground: some View {
         if #available(iOS 26.0, *) {
             Color.clear
         } else {
@@ -192,34 +232,194 @@ private extension MessageBarView {
         }
     }
 
-    @ViewBuilder
-    var attachmentBackground: some View {
-        if #available(iOS 26.0, *) {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .glassEffect(.clear.interactive())
-                .background(.black.opacity(0.3))
-        } else {
-            RoundedRectangle(cornerRadius: baseInputHeight / 2, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
-        }
-    }
+    private var voiceRecordButton: some View {
+        let holdGesture = DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                if !isMicPressed {
+                    isMicPressed = true
+                    shouldCancelVoiceSend = false
+                    startVoiceRecording()
+                } else {
+                    shouldCancelVoiceSend = value.translation.height < -60
+                }
+            }
+            .onEnded { value in
+                isMicPressed = false
+                let send = value.translation.height >= -60
+                stopVoiceRecording(send: send)
+                shouldCancelVoiceSend = false
+            }
 
-    @ViewBuilder
-    var inputBackground: some View {
-        if #available(iOS 26.0, *) {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24.0))
-                .background(.black.opacity(0.3))
+        let iconName: String
+        if isRecordingVoice {
+            iconName = shouldCancelVoiceSend ? "xmark.circle.fill" : "waveform.circle.fill"
         } else {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
+            iconName = "microphone"
         }
+
+        let iconColor: Color
+        if isRecordingVoice {
+            iconColor = shouldCancelVoiceSend ? Color.red.opacity(0.85) : Color.secondary
+        } else {
+            iconColor = Color.secondary
+        }
+
+        return ZStack {
+            if isRecordingVoice {
+                Circle()
+                    .fill(Color.secondary.opacity(0.08))
+                    .frame(width: 44, height: 44)
+                    .transition(.opacity)
+            }
+
+            Image(systemName: iconName)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(iconColor)
+                .opacity(isMicPressed ? 0.6 : 1)
+        }
+        .frame(width: 44, height: 44, alignment: .center)
+        .contentShape(Rectangle())
+        .gesture(holdGesture)
+        .accessibilityLabel("Hold to record voice message")
     }
 
     private func sendMessage() {
         processMessage()
         showEmojiPicker = false
         onSubmit()
+    }
+
+    private func startVoiceRecording() {
+        guard voiceMessagesEnabled else { return }
+        guard voiceStartTask == nil else { return }
+
+        voiceStartTask = Task { @MainActor in
+            var shouldCancelRecorder = false
+
+            withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                isRecordingVoice = true
+            }
+
+            do {
+                try await voiceRecorder.beginRecording()
+                if Task.isCancelled {
+                    shouldCancelRecorder = true
+                    isMicPressed = false
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                        isRecordingVoice = false
+                    }
+                    shouldCancelVoiceSend = false
+                } else {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                }
+            } catch let error as VoiceRecordingManager.VoiceRecordingError {
+                shouldCancelRecorder = true
+                recordingErrorMessage = message(for: error)
+                isMicPressed = false
+                withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                    isRecordingVoice = false
+                }
+                shouldCancelVoiceSend = false
+            } catch is CancellationError {
+                shouldCancelRecorder = true
+                withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                    isRecordingVoice = false
+                }
+                shouldCancelVoiceSend = false
+            } catch {
+                shouldCancelRecorder = true
+                recordingErrorMessage = "Something went wrong while starting the recording."
+                isMicPressed = false
+                withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                    isRecordingVoice = false
+                }
+                shouldCancelVoiceSend = false
+            }
+
+            if shouldCancelRecorder {
+                voiceRecorder.cancelRecording()
+            }
+
+            voiceStartTask = nil
+        }
+    }
+
+    private func stopVoiceRecording(send: Bool) {
+        let startTask = voiceStartTask
+        Task { @MainActor in
+            if let startTask {
+                if !send {
+                    startTask.cancel()
+                }
+                _ = await startTask.value
+            }
+
+            voiceStartTask = nil
+
+            if !send {
+                voiceRecorder.cancelRecording()
+                withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                    isRecordingVoice = false
+                }
+                shouldCancelVoiceSend = false
+                return
+            }
+
+            if voiceRecorder.state == .preparing {
+                // Give the recorder a brief moment to leave the preparing state when the user lifts very quickly.
+                try? await Task.sleep(nanoseconds: 80_000_000)
+            }
+
+            guard voiceRecorder.state == .recording else {
+                voiceRecorder.cancelRecording()
+                withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                    isRecordingVoice = false
+                }
+                shouldCancelVoiceSend = false
+                return
+            }
+
+            do {
+                if let clip = try await voiceRecorder.finishRecording() {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    onVoiceMessageSend(clip)
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
+                        isRecordingVoice = false
+                    }
+                    shouldCancelVoiceSend = false
+                } else {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                        isRecordingVoice = false
+                    }
+                    shouldCancelVoiceSend = false
+                }
+            } catch let error as VoiceRecordingManager.VoiceRecordingError {
+                recordingErrorMessage = message(for: error)
+                withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                    isRecordingVoice = false
+                }
+                shouldCancelVoiceSend = false
+            } catch {
+                recordingErrorMessage = "Failed to finish recording. Please try again."
+                withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
+                    isRecordingVoice = false
+                }
+                shouldCancelVoiceSend = false
+            }
+        }
+    }
+
+    private func message(for error: VoiceRecordingManager.VoiceRecordingError) -> String {
+        switch error {
+        case .permissionDenied:
+            return "Please allow microphone access in Settings to record voice messages."
+        case .configurationFailed:
+            return "We couldn't access the microphone. Try closing other recording apps and try again."
+        case .recordingFailed:
+            return "Recording failed to start. Please try again."
+        case .encodingFailed:
+            return "We couldn't save the recording. Please try again."
+        }
     }
 
     private func processMessage() {
@@ -420,7 +620,8 @@ private extension MessageBarView {
         showingFilePicker: .constant(false),
         showingUploadPicker: .constant(false),
         onMessageChange: { _ in },
-        onSubmit: { }
+        onSubmit: { },
+        onVoiceMessageSend: { _ in }
     )
     .environmentObject(CustomEmojiManager())
 }

@@ -54,7 +54,7 @@ func getDiscordDMs(token: String, completion: @escaping ([DMs]) -> Void) {
                     completion(channels)
                 }
             } catch {
-                print(String(data: data, encoding: .utf8))
+                print(String(data: data, encoding: .utf8) ?? "Unable to decode data")
                 print("Error: \(error)")
             }
         }

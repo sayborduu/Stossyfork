@@ -4,6 +4,18 @@
     "" : {
       "shouldTranslate" : false
     },
+    " (%@). " : {
+
+    },
+    " has closed! " : {
+
+    },
+    "'s poll " : {
+
+    },
+    "(%@)" : {
+
+    },
     "(edited)" : {
       "localizations" : {
         "es" : {
@@ -13,6 +25,12 @@
           }
         }
       }
+    },
+    "@%@" : {
+
+    },
+    "%@ " : {
+
     },
     "%@ • %@" : {
       "localizations" : {
@@ -26,6 +44,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ • %2$@"
+          }
+        }
+      }
+    },
+    "%lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
           }
         }
       }
@@ -56,6 +84,12 @@
         }
       }
     },
+    "%lld%%" : {
+
+    },
+    "%lldpx" : {
+
+    },
     "▢ replacement" : {
       "localizations" : {
         "es" : {
@@ -85,6 +119,9 @@
           }
         }
       }
+    },
+    "Active Theme" : {
+
     },
     "Add your Store ID and BLOB_READ_WRITE_TOKEN to continue." : {
       "localizations" : {
@@ -218,6 +255,30 @@
         }
       }
     },
+    "Available" : {
+
+    },
+    "Avatar" : {
+
+    },
+    "Avatar Corner Radius" : {
+
+    },
+    "Avatar Scale" : {
+
+    },
+    "Back" : {
+
+    },
+    "Based on Built-in Theme" : {
+
+    },
+    "Bio" : {
+
+    },
+    "Blank Theme" : {
+
+    },
     "Blob configuration" : {
       "localizations" : {
         "es" : {
@@ -261,6 +322,12 @@
         }
       }
     },
+    "Bubble Style" : {
+
+    },
+    "Built-in Themes" : {
+
+    },
     "Camera" : {
       "localizations" : {
         "es" : {
@@ -290,6 +357,12 @@
           }
         }
       }
+    },
+    "Chat Background" : {
+
+    },
+    "Choose Template" : {
+
     },
     "Choose your privacy mode" : {
       "localizations" : {
@@ -459,6 +532,18 @@
         }
       }
     },
+    "Corner Radius" : {
+
+    },
+    "Create a completely new theme from scratch with default settings." : {
+
+    },
+    "Create Custom Theme" : {
+
+    },
+    "Create Theme" : {
+
+    },
     "Custom" : {
       "localizations" : {
         "es" : {
@@ -499,6 +584,12 @@
         }
       }
     },
+    "Custom Status" : {
+
+    },
+    "Custom Themes" : {
+
+    },
     "Default" : {
       "localizations" : {
         "es" : {
@@ -509,6 +600,9 @@
         }
       }
     },
+    "Delete" : {
+
+    },
     "Delete \"%@\"" : {
       "localizations" : {
         "es" : {
@@ -518,6 +612,9 @@
           }
         }
       }
+    },
+    "Delete %@" : {
+
     },
     "Delete emoji?" : {
       "localizations" : {
@@ -538,6 +635,12 @@
           }
         }
       }
+    },
+    "Delete theme?" : {
+
+    },
+    "Description (optional)" : {
+
     },
     "Disable this to only use Stossycord custom emojis." : {
       "localizations" : {
@@ -560,6 +663,15 @@
         }
       }
     },
+    "Discard" : {
+
+    },
+    "Discard changes?" : {
+
+    },
+    "Discord Settings" : {
+
+    },
     "DMs" : {
       "localizations" : {
         "es" : {
@@ -580,6 +692,12 @@
         }
       }
     },
+    "Duplicate" : {
+
+    },
+    "Edit" : {
+
+    },
     "Edit Message" : {
       "localizations" : {
         "es" : {
@@ -589,6 +707,12 @@
           }
         }
       }
+    },
+    "Edit Mode" : {
+
+    },
+    "Edit Theme" : {
+
     },
     "Editing message" : {
       "localizations" : {
@@ -630,6 +754,9 @@
         }
       }
     },
+    "Enable Stroke" : {
+
+    },
     "Enable the Vercel Blob Store above to manage your custom emojis." : {
       "localizations" : {
         "es" : {
@@ -649,6 +776,12 @@
           }
         }
       }
+    },
+    "Enable voice messages in settings to view or play this clip." : {
+
+    },
+    "Failed to load profile" : {
+
     },
     "Failed to Load Profile" : {
       "localizations" : {
@@ -690,6 +823,9 @@
         }
       }
     },
+    "General" : {
+
+    },
     "GitHub" : {
       "localizations" : {
         "es" : {
@@ -699,6 +835,18 @@
           }
         }
       }
+    },
+    "Glass Effect" : {
+
+    },
+    "Grouped Vertical Padding" : {
+
+    },
+    "Hold to record voice message" : {
+
+    },
+    "Horizontal Padding" : {
+
     },
     "Host your own" : {
       "localizations" : {
@@ -740,6 +888,18 @@
         }
       }
     },
+    "JSON" : {
+
+    },
+    "JSON Editor" : {
+
+    },
+    "Keep Editing" : {
+
+    },
+    "Layout" : {
+
+    },
     "Leave" : {
       "localizations" : {
         "es" : {
@@ -760,6 +920,9 @@
         }
       }
     },
+    "Live Preview" : {
+
+    },
     "Load Discord Emojis" : {
       "localizations" : {
         "es" : {
@@ -769,6 +932,9 @@
           }
         }
       }
+    },
+    "Load from JSON" : {
+
     },
     "Loading emojis…" : {
       "localizations" : {
@@ -830,6 +996,18 @@
         }
       }
     },
+    "Match others style when self messages are left" : {
+
+    },
+    "Message alignment" : {
+
+    },
+    "Message Themes" : {
+
+    },
+    "Message Types" : {
+
+    },
     "Messages" : {
       "localizations" : {
         "es" : {
@@ -839,6 +1017,9 @@
           }
         }
       }
+    },
+    "Metadata" : {
+
     },
     "minecraft avatars fr" : {
       "localizations" : {
@@ -940,6 +1121,12 @@
         }
       }
     },
+    "Only message types with custom rendering can be toggled. Others are shown by default." : {
+
+    },
+    "Opacity" : {
+
+    },
     "Open Vercel Dashboard" : {
       "localizations" : {
         "es" : {
@@ -959,6 +1146,9 @@
           }
         }
       }
+    },
+    "Other Messages" : {
+
     },
     "Password" : {
       "localizations" : {
@@ -989,6 +1179,9 @@
           }
         }
       }
+    },
+    "Premium" : {
+
     },
     "Privacy" : {
       "localizations" : {
@@ -1039,6 +1232,9 @@
           }
         }
       }
+    },
+    "Recording %@" : {
+
     },
     "Referenced message unavailable" : {
       "localizations" : {
@@ -1109,6 +1305,9 @@
           }
         }
       }
+    },
+    "Save Changes" : {
+
     },
     "Save to photos" : {
       "localizations" : {
@@ -1189,6 +1388,9 @@
           }
         }
       }
+    },
+    "Select a theme or create your own. Your choice will be saved." : {
+
     },
     "Select Attachment" : {
       "localizations" : {
@@ -1761,6 +1963,7 @@
       }
     },
     "settings.section.appearanceAndDesign" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2251,6 +2454,12 @@
         }
       }
     },
+    "settings.toggle.useSettingsTabLabel" : {
+
+    },
+    "settings.toggle.useSettingsTabLabel.help" : {
+
+    },
     "settings.token.label" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2268,6 +2477,12 @@
         }
       }
     },
+    "Show Self messages on left" : {
+
+    },
+    "Show timestamps" : {
+
+    },
     "Show User" : {
       "localizations" : {
         "es" : {
@@ -2277,6 +2492,9 @@
           }
         }
       }
+    },
+    "Spacing" : {
+
     },
     "Squared avatars" : {
       "localizations" : {
@@ -2288,6 +2506,12 @@
         }
       }
     },
+    "Start fresh with default values and customise everything." : {
+
+    },
+    "Start from Blank" : {
+
+    },
     "Start using Stossycord" : {
       "localizations" : {
         "es" : {
@@ -2297,6 +2521,9 @@
           }
         }
       }
+    },
+    "Start with a built-in theme as a template and customise it to your liking." : {
+
     },
     "Store your custom emoji set in a Vercel Blob database. Stossycord only talks to Vercel on your behalf." : {
       "localizations" : {
@@ -2308,6 +2535,12 @@
         }
       }
     },
+    "Stroke Width" : {
+
+    },
+    "Swipe or long-press a theme to edit, duplicate, or delete it." : {
+
+    },
     "Tap to view conversation" : {
       "localizations" : {
         "es" : {
@@ -2317,6 +2550,18 @@
           }
         }
       }
+    },
+    "The winner was " : {
+
+    },
+    "Theme Name" : {
+
+    },
+    "There was no winner :O. " : {
+
+    },
+    "These message types aren't currently supported and will not be shown." : {
+
     },
     "This channel is marked as NSFW and may contain explicit adult content. You must be 18 years of age or older to view this channel. Do you want to continue?" : {
       "localizations" : {
@@ -2358,6 +2603,15 @@
         }
       }
     },
+    "This will remove the custom theme %@. This action cannot be undone." : {
+
+    },
+    "Transcribe" : {
+
+    },
+    "Transcribing…" : {
+
+    },
     "Turn this off to exclusively use Stossycord custom emojis." : {
       "localizations" : {
         "es" : {
@@ -2378,6 +2632,12 @@
         }
       }
     },
+    "Unavailable" : {
+
+    },
+    "Ungrouped Vertical Padding" : {
+
+    },
     "Unique Store ID" : {
       "localizations" : {
         "es" : {
@@ -2397,6 +2657,9 @@
           }
         }
       }
+    },
+    "Use Custom Background" : {
+
     },
     "Use custom emoji backend" : {
       "localizations" : {
@@ -2438,6 +2701,15 @@
         }
       }
     },
+    "Visual" : {
+
+    },
+    "Voice message blocked" : {
+
+    },
+    "Voice Recording Failed" : {
+
+    },
     "Welcome to\nStossycord" : {
       "localizations" : {
         "es" : {
@@ -2477,6 +2749,12 @@
           }
         }
       }
+    },
+    "You haven't created any custom themes yet." : {
+
+    },
+    "You haven't saved your changes." : {
+
     },
     "You haven't uploaded any custom emojis yet. Upload an image to get started." : {
       "localizations" : {
@@ -2565,6 +2843,9 @@
           }
         }
       }
+    },
+    "Your Messages" : {
+
     }
   },
   "version" : "1.1"

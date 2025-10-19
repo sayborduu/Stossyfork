@@ -11,6 +11,7 @@
 		4E099B792C9BD7C800C2D383 /* Giffy in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 4E099B782C9BD7C800C2D383 /* Giffy */; };
 		4E099B7C2C9BD7D100C2D383 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4E099B7B2C9BD7D100C2D383 /* KeychainSwift */; };
 		4E099B7F2C9BD7DB00C2D383 /* OggDecoder in Frameworks */ = {isa = PBXBuildFile; productRef = 4E099B7E2C9BD7DB00C2D383 /* OggDecoder */; };
+		6A7F347F2EA3D864003FC549 /* SFSymbolsPicker in Frameworks */ = {isa = PBXBuildFile; productRef = 6A7F347E2EA3D864003FC549 /* SFSymbolsPicker */; };
 		8D1E628F2D6DD93200706060 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8D1E628E2D6DD93200706060 /* MarkdownUI */; };
 /* End PBXBuildFile section */
 
@@ -45,6 +46,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E099B7C2C9BD7D100C2D383 /* KeychainSwift in Frameworks */,
+				6A7F347F2EA3D864003FC549 /* SFSymbolsPicker in Frameworks */,
 				4E099B7F2C9BD7DB00C2D383 /* OggDecoder in Frameworks */,
 				4E099B792C9BD7C800C2D383 /* Giffy in Frameworks */,
 				8D1E628F2D6DD93200706060 /* MarkdownUI in Frameworks */,
@@ -96,6 +98,7 @@
 				4E099B7B2C9BD7D100C2D383 /* KeychainSwift */,
 				4E099B7E2C9BD7DB00C2D383 /* OggDecoder */,
 				8D1E628E2D6DD93200706060 /* MarkdownUI */,
+				6A7F347E2EA3D864003FC549 /* SFSymbolsPicker */,
 			);
 			productName = Stossycord;
 			productReference = 4E099B632C9BD76C00C2D383 /* Stossycord.app */;
@@ -133,6 +136,7 @@
 				4E099B7A2C9BD7D100C2D383 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				4E099B7D2C9BD7DB00C2D383 /* XCRemoteSwiftPackageReference "OggDecoder" */,
 				8D1E628D2D6DD93200706060 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+				6A7F347D2EA3D864003FC549 /* XCRemoteSwiftPackageReference "SFSymbolsPicker" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4E099B642C9BD76C00C2D383 /* Products */;
@@ -313,8 +317,10 @@
 				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "We need access to your documents folder to import files.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Stossycord needs Face ID to keep your Token Safe";
 				INFOPLIST_KEY_NSFileProviderPresenceUsageDescription = "We need access to your file provider to import files.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Stossycord will use your microphone to send voice messages.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Stossycord needs access to your Photo library to upload photos and videos to Discord";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Stossycord needs access to your Photo library to upload photos and videos to Discord";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Stossycord will use Speech Recognition to transcribe voice messages.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -361,8 +367,10 @@
 				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "We need access to your documents folder to import files.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Stossycord needs Face ID to keep your Token Safe";
 				INFOPLIST_KEY_NSFileProviderPresenceUsageDescription = "We need access to your file provider to import files.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Stossycord will use your microphone to send voice messages.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Stossycord needs access to your Photo library to upload photos and videos to Discord";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Stossycord needs access to your Photo library to upload photos and videos to Discord";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Stossycord will use Speech Recognition to transcribe voice messages.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -443,6 +451,14 @@
 				kind = branch;
 			};
 		};
+		6A7F347D2EA3D864003FC549 /* XCRemoteSwiftPackageReference "SFSymbolsPicker" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alessiorubicini/SFSymbolsPicker";
+			requirement = {
+				kind = exactVersion;
+				version = 1.0.6;
+			};
+		};
 		8D1E628D2D6DD93200706060 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui.git";
@@ -473,6 +489,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4E099B7D2C9BD7DB00C2D383 /* XCRemoteSwiftPackageReference "OggDecoder" */;
 			productName = OggDecoder;
+		};
+		6A7F347E2EA3D864003FC549 /* SFSymbolsPicker */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6A7F347D2EA3D864003FC549 /* XCRemoteSwiftPackageReference "SFSymbolsPicker" */;
+			productName = SFSymbolsPicker;
 		};
 		8D1E628E2D6DD93200706060 /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -86,7 +86,7 @@ struct MutualGuild: Codable {
 
 extension UserProfile {
     var displayName: String {
-        return user.global_name ?? user.username
+        return user.globalName ?? user.username
     }
     
     var userTag: String {

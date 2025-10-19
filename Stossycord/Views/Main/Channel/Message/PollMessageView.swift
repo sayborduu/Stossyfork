@@ -22,20 +22,12 @@ struct PollMessageView: View {
     @State private var requestSequence: Int = 0
     @State private var activeRequestId: Int = 0
 
-    @AppStorage("privacyCustomLoadEmojis") private var privacyCustomLoadEmojis: Bool = false
-    @AppStorage("privacyMode") private var privacyModeRaw: String = PrivacyMode.defaultMode.rawValue
     @AppStorage("discordEmojiReplacement") private var discordEmojiReplacement: String = ""
     
-    private var privacyMode: PrivacyMode { PrivacyMode(rawValue: privacyModeRaw) ?? .standard }
+    private let privacyHelper = EmojiPrivacyHelper()
+    
     private var privacyAllowsCustomEmojis: Bool {
-        switch privacyMode {
-        case .custom:
-            return privacyCustomLoadEmojis
-        case .privacy:
-            return false
-        default:
-            return true
-        }
+        privacyHelper.privacyAllowsCustomEmojis
     }
 
     private var answers: [PollAnswer] {

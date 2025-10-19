@@ -41,8 +41,12 @@ func CurrentUser(token: String, completion: @escaping (User?) -> Void) {
             do {
                 do {
                     let discordUser = try JSONDecoder().decode(User.self, from: data)
-                    //print(discordUser)
+                    print("=== DISCORD USER ===")
+                    print(discordUser)
+                    print("====================")
+                    print("=== RAW DATA ===")
                     print(String(data: data, encoding: .utf8) ?? "")
+                    print("====================")
                     completion(discordUser)
                 } catch {
                     print("Failed to decode JSON: \(error)")

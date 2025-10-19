@@ -7,6 +7,9 @@
 
 import SwiftUI
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 extension Color {
     init(hex: Int, opacity: Double = 1) {
@@ -42,5 +45,29 @@ extension Color {
             blue: Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+
+    func toHex(includeAlpha: Bool = true) -> String? {
+        #if canImport(UIKit)
+        let uiColor = UIColor(self)
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+        guard uiColor.getRed(&r, green: &g, blue: &b, alpha: &a) else { return nil }
+
+        let ri = Int(round(r * 255))
+        let gi = Int(round(g * 255))
+        let bi = Int(round(b * 255))
+        let ai = Int(round(a * 255))
+
+        if includeAlpha && ai < 255 {
+            return String(format: "#%02X%02X%02X%02X", ai, ri, gi, bi)
+        } else {
+            return String(format: "#%02X%02X%02X", ri, gi, bi)
+        }
+        #else
+        return nil
+        #endif
     }
 }

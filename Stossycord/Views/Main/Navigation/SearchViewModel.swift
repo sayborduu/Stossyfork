@@ -518,7 +518,7 @@ struct UserResult: Identifiable {
     let dmChannelId: String?
     
     var id: String { user.id }
-    var displayName: String { user.global_name ?? user.username }
+    var displayName: String { user.globalName ?? user.username }
     var subtitle: String {
         switch context {
         case .directMessage:
@@ -559,9 +559,9 @@ private struct ChannelContext {
 private extension DMs {
     var displayName: String {
         if type == 1, let recipient = recipients?.first {
-            return recipient.global_name ?? recipient.username
+            return recipient.globalName ?? recipient.username
         }
-        let names = recipients?.prefix(3).compactMap { $0.global_name ?? $0.username } ?? []
+        let names = recipients?.prefix(3).compactMap { $0.globalName ?? $0.username } ?? []
         if names.isEmpty { return "Group DM" }
         if names.count < 3 {
             return names.joined(separator: ", ")

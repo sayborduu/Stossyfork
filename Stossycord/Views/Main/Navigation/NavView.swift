@@ -14,6 +14,14 @@ enum Tabs: Hashable {
 struct NavView: View {
     @StateObject var webSocketService: WebSocketService
     @State private var selectedTab: Tabs = .home
+    @AppStorage("useSettingsTabLabel") private var useSettingsTabLabel: Bool = true
+    @StateObject private var presenceManager: PresenceManager
+    @State private var isTransitioning: Bool = false
+    
+    init(webSocketService: WebSocketService) {
+        _webSocketService = StateObject(wrappedValue: webSocketService)
+        _presenceManager = StateObject(wrappedValue: PresenceManager(webSocketService: webSocketService))
+    }
     
     var body: some View {
         #if os(macOS)
@@ -36,7 +44,7 @@ extension NavView {
             legacyTabView()
         }
     }
-    
+
     @ViewBuilder
     @available(iOS 18.0, *)
     private func modernTabView() -> some View {
@@ -48,9 +56,19 @@ extension NavView {
             Tab("DMs", systemImage: "envelope", value: Tabs.dm) {
                 DMsView(webSocketService: webSocketService)
             }
-            
-            Tab("Settings", systemImage: "gear", value: Tabs.settings) {
-                SettingsView()
+
+            Tab(useSettingsTabLabel ? "Settings" : "Profile", systemImage: useSettingsTabLabel ? "gearshape" : "person.crop.circle", value: Tabs.settings) {
+                Group {
+                    if useSettingsTabLabel {
+                        NavigationStack {
+                            SettingsView()
+                                .environmentObject(presenceManager)
+                        }
+                    } else {
+                        ProfileView(webSocketService: webSocketService)
+                    }
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }
             
             Tab(value: Tabs.search, role: .search) {
@@ -58,6 +76,9 @@ extension NavView {
             }
         }
         .onChange(of: selectedTab, perform: handleTabChange)
+        .onChange(of: useSettingsTabLabel) { newValue in
+            handleSettingsTabLabelChange(newValue)
+        }
         
         if #available(iOS 26.0, *) {
             tabView.tabBarMinimizeBehavior(.onScrollDown)
@@ -88,11 +109,43 @@ extension NavView {
                     Label("DMs", systemImage: "envelope")
                 }
                 .tag(Tabs.dm)
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
+            
+            Group {
+                if useSettingsTabLabel {
+                    NavigationStack {
+                        SettingsView()
+                            .environmentObject(presenceManager)
+                    }
+                    .tabItem {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                } else {
+                    ProfileView(webSocketService: webSocketService)
+                        .tabItem {
+                            Label("Profile", systemImage: "person.crop.circle")
+                        }
                 }
-                .tag(Tabs.settings)
+            }
+            .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            .tag(Tabs.settings)
+        }
+        .onChange(of: useSettingsTabLabel) { newValue in
+            handleSettingsTabLabelChange(newValue)
+        }
+    }
+    
+    private func handleSettingsTabLabelChange(_ newValue: Bool) {
+        // Only animate if we're currently on the settings/profile tab
+        guard selectedTab == .settings else { return }
+        
+        isTransitioning = true
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            // Trigger the tab content change with animation
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            isTransitioning = false
         }
     }
 }

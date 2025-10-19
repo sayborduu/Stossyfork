@@ -12,6 +12,7 @@ import PhotosUI
 struct ChannelView: View {
     // MARK: - Properties
     @StateObject var webSocketService: WebSocketService
+    @StateObject private var themeManager = ThemeManager()
     @ObservedObject private var keyboard = KeyboardResponder()
     @State private var message: String = ""
     @State var currentchannelname: String
@@ -32,7 +33,6 @@ struct ChannelView: View {
     @State private var showTokenWarning = false
     @State private var permissionStatus = ChannelPermissionStatus(canSendMessages: true, canAttachFiles: true, restrictionReason: nil)
     @AppStorage("useNativePicker") private var useNativePicker: Bool = true
-    @AppStorage("useRedesignedMessages") private var useRedesignedMessages: Bool = true
     @State private var showNativePicker = false
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var showNativePhotoPicker = false
@@ -42,10 +42,63 @@ struct ChannelView: View {
     @AppStorage("customEmojiBlobToken") private var customEmojiToken = ""
     @AppStorage("customEmojiBackendURL") private var customEmojiBackendURL = ""
     @AppStorage("useCustomEmojiBackend") private var useCustomEmojiBackend = false
+    @AppStorage("visibleMessageTypeIDs") private var visibleMessageTypeIDsData: Data?
     
     @EnvironmentObject private var customEmojiManager: CustomEmojiManager
     
     private let keychain = KeychainSwift()
+    
+    private var themeBackgroundColor: Color? {
+        themeManager.selectedTheme.chatBackgroundColorValue
+    }
+    
+    private var themeBackgroundOpacity: Double {
+        Double(themeManager.selectedTheme.chatBackgroundOpacity)
+    }
+    
+    @ViewBuilder
+    private var chatBackgroundLayer: some View {
+        if let color = themeBackgroundColor {
+            color.opacity(themeBackgroundOpacity)
+                .ignoresSafeArea()
+        }
+    }
+    
+    @ViewBuilder
+    private var chatBackgroundFill: some View {
+        if let color = themeBackgroundColor {
+            color.opacity(themeBackgroundOpacity)
+        }
+    }
+
+    private var channelMessages: [Message] {
+        webSocketService.data.filter { $0.channelId == currentid }
+    }
+
+    private var visibleChannelMessages: [Message] {
+        channelMessages.filter(shouldDisplayMessage)
+    }
+
+    /// Resolved message type IDs the user opted to display.
+    private var visibleMessageTypeIDs: Set<Int> {
+        get {
+            guard let data = visibleMessageTypeIDsData,
+                  let decoded = try? JSONDecoder().decode([Int].self, from: data) else {
+                return MessageType.customizableIDs
+            }
+            return Set(decoded).intersection(MessageType.customizableIDs)
+        }
+        set {
+            let filtered = Array(newValue.intersection(MessageType.customizableIDs))
+            visibleMessageTypeIDsData = try? JSONEncoder().encode(filtered)
+        }
+    }
+
+    private func shouldDisplayMessage(_ message: Message) -> Bool {
+        guard let type = message.type else { return true }
+        guard MessageType.customizableIDs.contains(type) else { return true }
+        return visibleMessageTypeIDs.contains(type)
+    }
     
     // MARK: - Body
     var body: some View {
@@ -84,7 +137,8 @@ struct ChannelView: View {
                             showingFilePicker: $showingFilePicker,
                             showingUploadPicker: $showingUploadPicker,
                             onMessageChange: { _ in handleTypingIndicator() },
-                            onSubmit: handleMessageSubmit
+                            onSubmit: handleMessageSubmit,
+                            onVoiceMessageSend: handleVoiceMessageSend
                         )
                             .padding(.horizontal)
                             // .padding(.bottom, tabBarModifier.shown ?
@@ -92,8 +146,10 @@ struct ChannelView: View {
                                    //  keyboard.currentHeight - tabBarModifier.tabBarSize)
                             .animation(.easeOut(duration: 0.16), value: keyboard.currentHeight)
                     }
+            .background(chatBackgroundFill)
                 }
         }
+    .background(chatBackgroundLayer)
         .ignoresSafeArea(.container)
         .sheet(item: $selectedAuthor, onDismiss: {
             selectedAuthor = nil
@@ -169,7 +225,7 @@ struct ChannelView: View {
         ScrollViewReader { scrollViewProxy in
             ScrollView {
                 LazyVStack(spacing: 2) {
-                    ForEach(webSocketService.data.filter { $0.channelId == currentid }, id: \.messageId) { messageData in
+                    ForEach(visibleChannelMessages, id: \.messageId) { messageData in
                         if webSocketService.currentUser.id == messageData.author.authorId {
                             selfMessageView(messageData: messageData)
                                 .id(messageData.messageId)
@@ -184,14 +240,15 @@ struct ChannelView: View {
                 }
                 .padding(.top)
             }
+            .background(chatBackgroundFill)
             .onChange(of: scrollToId) { newValue in
-                if let scrollToId,
-                   let targetMessage = webSocketService.data.first(where: { $0.messageId == scrollToId }) {
+                guard let scrollToId else { return }
+                if let targetMessage = visibleChannelMessages.first(where: { $0.messageId == scrollToId }) {
                     withAnimation {
                         scrollViewProxy.scrollTo(targetMessage.messageId, anchor: .center)
-                        self.scrollToId = nil
                     }
                 }
+                self.scrollToId = nil
             }
             .scrollAnchorBottom(websocket: webSocketService, scrollproxy: scrollViewProxy)
         }
@@ -199,27 +256,21 @@ struct ChannelView: View {
     
     private func selfMessageView(messageData: Message) -> some View {
         VStack(alignment: .trailing, spacing: 2) {
-            Group {
-                if useRedesignedMessages {
-                    let messages = webSocketService.data.filter { $0.channelId == currentid }
-                    let currentIndex = messages.firstIndex { $0.messageId == messageData.messageId } ?? 0
-                    let previousMessage = currentIndex > 0 ? messages[currentIndex - 1] : nil
-                    let isGrouped = MessageViewRE.shouldGroupMessage(current: messageData, previous: previousMessage)
-                    
-                    MessageViewRE(
-                        messageData: messageData, 
-                        reply: $scrollToId, 
-                        webSocketService: webSocketService, 
-                        isCurrentUser: true, 
-                        onProfileTap: { presentUserProfile(for: messageData.author) }, 
-                        onReplyTap: { repliedMessage = $0 }, 
-                        isGrouped: isGrouped, 
-                        allMessages: messages
-                    )
-                } else {
-                    MessageView(messageData: messageData, reply: $scrollToId, webSocketService: webSocketService, isCurrentUser: true, onProfileTap: { presentUserProfile(for: messageData.author) })
-                }
-            }
+            let messages = visibleChannelMessages
+            let currentIndex = messages.firstIndex { $0.messageId == messageData.messageId } ?? 0
+            let previousMessage = currentIndex > 0 ? messages[currentIndex - 1] : nil
+            let isGrouped = MessageViewRE.shouldGroupMessage(current: messageData, previous: previousMessage)
+            
+            MessageViewRE(
+                messageData: messageData, 
+                reply: $scrollToId, 
+                webSocketService: webSocketService, 
+                isCurrentUser: true, 
+                onProfileTap: { presentUserProfile(for: messageData.author) }, 
+                onReplyTap: { repliedMessage = $0 }, 
+                isGrouped: isGrouped, 
+                allMessages: messages
+            )
             .contextMenu {
                     Button(action: { 
                         presentUserProfile(for: messageData.author)
@@ -247,27 +298,21 @@ struct ChannelView: View {
     
     private func otherMessageView(messageData: Message) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Group {
-                if useRedesignedMessages {
-                    let messages = webSocketService.data.filter { $0.channelId == currentid }
-                    let currentIndex = messages.firstIndex { $0.messageId == messageData.messageId } ?? 0
-                    let previousMessage = currentIndex > 0 ? messages[currentIndex - 1] : nil
-                    let isGrouped = MessageViewRE.shouldGroupMessage(current: messageData, previous: previousMessage)
-                    
-                    MessageViewRE(
-                        messageData: messageData, 
-                        reply: $scrollToId, 
-                        webSocketService: webSocketService, 
-                        isCurrentUser: false, 
-                        onProfileTap: { presentUserProfile(for: messageData.author) }, 
-                        onReplyTap: { repliedMessage = $0 }, 
-                        isGrouped: isGrouped, 
-                        allMessages: messages
-                    )
-                } else {
-                    MessageView(messageData: messageData, reply: $scrollToId, webSocketService: webSocketService, isCurrentUser: false, onProfileTap: { presentUserProfile(for: messageData.author) })
-                }
-            }
+            let messages = visibleChannelMessages
+            let currentIndex = messages.firstIndex { $0.messageId == messageData.messageId } ?? 0
+            let previousMessage = currentIndex > 0 ? messages[currentIndex - 1] : nil
+            let isGrouped = MessageViewRE.shouldGroupMessage(current: messageData, previous: previousMessage)
+            
+            MessageViewRE(
+                messageData: messageData, 
+                reply: $scrollToId, 
+                webSocketService: webSocketService, 
+                isCurrentUser: false, 
+                onProfileTap: { presentUserProfile(for: messageData.author) }, 
+                onReplyTap: { repliedMessage = $0 }, 
+                isGrouped: isGrouped, 
+                allMessages: messages
+            )
             .contextMenu {
                     Button(action: { 
                         presentUserProfile(for: messageData.author)
@@ -521,6 +566,22 @@ struct ChannelView: View {
         showingFilePicker = false
         
         clearTemporaryFolder()
+    }
+
+    private func handleVoiceMessageSend(_ clip: VoiceRecordingManager.Clip) {
+        guard permissionStatus.canSendMessages else { return }
+        let token = keychain.get("token") ?? ""
+        guard !token.isEmpty else { return }
+
+        Task {
+            do {
+                try await VoiceMessageSender().sendVoiceMessage(clip: clip, token: token, channelId: currentid)
+                try? FileManager.default.removeItem(at: clip.fileURL)
+            } catch {
+                print("Voice message send failed: \(error)")
+                try? FileManager.default.removeItem(at: clip.fileURL)
+            }
+        }
     }
     
     private func handleOnAppear() {

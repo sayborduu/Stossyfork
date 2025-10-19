@@ -29,10 +29,8 @@ struct DMsView: View {
     @ViewBuilder
     private func content() -> some View {
         VStack(spacing: 0) {
-            // Search bar
             searchField
             
-            // DMs list
             conversationsList
                 .onAppear {
                     loadDirectMessages()
@@ -120,10 +118,15 @@ struct DMsView: View {
         webSocketService.dms.filter { channel in
             guard searchTerm.isEmpty else {
                 if channel.type == 1, let recipient = channel.recipients?.first {
-                    let name = recipient.global_name ?? recipient.username
+                    let name = recipient.globalName ?? recipient.username
                     return name.localizedCaseInsensitiveContains(searchTerm)
                 } else if channel.type == 3 {
-                    let names = channel.recipients?.compactMap { $0.global_name ?? $0.username } ?? []
+                    if let groupName = channel.name, !groupName.isEmpty {
+                        if groupName.localizedCaseInsensitiveContains(searchTerm) {
+                            return true
+                        }
+                    }
+                    let names = channel.recipients?.compactMap { $0.globalName ?? $0.username } ?? []
                     return names.joined(separator: " ").localizedCaseInsensitiveContains(searchTerm)
                 }
                 return false
@@ -135,7 +138,11 @@ struct DMsView: View {
     private func loadDirectMessages() {
         guard let token = keychain.get("token") else { return }
         getDiscordDMs(token: token) { items in
-            webSocketService.dms = items
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    webSocketService.dms = items
+                }
+            }
         }
     }
     
@@ -157,8 +164,9 @@ struct DMsView: View {
     private func getChannelName(for channel: DMs) -> String {
         if channel.type == 1, let recipient = channel.recipients?.first {
             return "@" + (recipient.username)
+        } else if channel.type == 3, let name = channel.name, !name.isEmpty {
+            return name
         } else {
-            // For group chats, just return the first recipient's name
             if let recipient = channel.recipients?.first {
                 return "@" + recipient.username
             } else {
@@ -175,10 +183,8 @@ struct DirectMessageRow: View {
     
     var body: some View {
         HStack(spacing: 14) {
-            // User avatar
             UserAvatarView(user: channel.recipients?.first)
             
-            // Username and status
             VStack(alignment: .leading, spacing: 2) {
                 Text(displayName)
                     .font(.system(size: 16, weight: .medium))
@@ -192,7 +198,6 @@ struct DirectMessageRow: View {
             
             Spacer()
             
-            // Navigation indicator
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.secondary)
@@ -205,7 +210,7 @@ struct DirectMessageRow: View {
     
     private var displayName: String {
         guard let recipient = channel.recipients?.first else { return "Unknown" }
-        return (recipient.global_name ?? recipient.username)
+        return (recipient.globalName ?? recipient.username)
     }
 }
 
@@ -240,7 +245,10 @@ struct GroupChatRow: View {
     }
     
     private var groupName: String {
-        let recipientNames = channel.recipients?.prefix(3).map { $0.global_name ?? $0.username } ?? []
+        if let name = channel.name, !name.isEmpty {
+            return name
+        }
+        let recipientNames = channel.recipients?.prefix(3).map { $0.globalName ?? $0.username } ?? []
         let namesString = recipientNames.joined(separator: ", ")
         if let count = channel.recipients?.count, count > 3 {
             return "Group: \(namesString) +\(count - 3)"

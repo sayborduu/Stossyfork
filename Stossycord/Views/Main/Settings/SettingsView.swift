@@ -31,10 +31,14 @@ struct SettingsView: View {
     @AppStorage("useNativePicker") private var useNativePicker: Bool = true
     @AppStorage("useRedesignedMessages") private var useRedesignedMessages: Bool = true
     @AppStorage("useDiscordFolders") private var useDiscordFolders: Bool = true
-    @AppStorage(DesignSettingsKeys.messageBubbleStyle) private var messageStyleRawValue: String = MessageBubbleStyle.imessage.rawValue
     @AppStorage(DesignSettingsKeys.showSelfAvatar) private var showSelfAvatar: Bool = true
-    @AppStorage(DesignSettingsKeys.customMessageBubbleJSON) private var customBubbleJSON: String = ""
     @AppStorage("useSquaredAvatars") private var useSquaredAvatars: Bool = false
+    @StateObject private var themeManager = ThemeManager()
+    @State private var isPresentingThemeEditor = false
+    @State private var themeEditorExistingTheme: MessageTheme?
+    @State private var themeEditorBaseTheme: MessageTheme?
+    @State private var showingThemeTemplatePicker = false
+    @State private var themePendingDeletion: MessageTheme?
     @AppStorage("privacyMode") private var privacyModeRawValue: String = PrivacyMode.defaultMode.rawValue
     @AppStorage("privacyCustomLoadEmojis") private var privacyCustomLoadEmojis: Bool = true
     @AppStorage("discordEmojiReplacement") private var discordEmojiReplacement: String = ""
@@ -45,6 +49,7 @@ struct SettingsView: View {
     @AppStorage("customEmojiStoreID") private var customEmojiStoreID: String = ""
     @AppStorage("customEmojiBlobToken") private var customEmojiBlobToken: String = ""
     @AppStorage("customEmojiBackendURL") private var customEmojiBackendURL: String = "https://stossymoji.vercel.app"
+    @AppStorage("useSettingsTabLabel") private var useSettingsTabLabel: Bool = true
 
     @StateObject private var customEmojiManager = CustomEmojiManager()
     @State private var showingEmojiImporter: Bool = false
@@ -53,8 +58,10 @@ struct SettingsView: View {
     @State private var editingName: String = ""
     
     private enum SettingsDestination: String, CaseIterable, Hashable {
+        case general
         case appearance
-        case design
+        case messageTypes
+        case themes
         case cache
         case privacy
         case customEmojis
@@ -65,15 +72,17 @@ struct SettingsView: View {
 
         var titleKey: LocalizedStringKey {
             switch self {
-            case .appearance: return "settings.section.appearanceAndDesign"
-            case .design: return "settings.section.design"
-            case .cache: return "settings.section.cache"
-            case .privacy: return "settings.section.privacy"
-            case .customEmojis: return "Custom Emojis"
-            case .beta: return "settings.section.beta"
-            case .presence: return "settings.section.presence"
-            case .token: return "settings.section.token"
-            case .warningZone: return "settings.section.warningZone"
+                case .general: return "General"
+                case .appearance: return "settings.section.appearance"
+                case .messageTypes: return "Message Types"
+                case .themes: return "Message Themes"
+                case .cache: return "settings.section.cache"
+                case .privacy: return "settings.section.privacy"
+                case .customEmojis: return "Custom Emojis"
+                case .beta: return "settings.section.beta"
+                case .presence: return "settings.section.presence"
+                case .token: return "settings.section.token"
+                case .warningZone: return "settings.section.warningZone"
             }
         }
 
@@ -83,15 +92,17 @@ struct SettingsView: View {
 
         var iconName: String {
             switch self {
-            case .appearance: return "paintbrush"
-            case .design: return "text.bubble"
-            case .cache: return "internaldrive"
-            case .privacy: return "lock.shield"
-            case .customEmojis: return "face.smiling"
-            case .beta: return "testtube.2"
-            case .presence: return "music.note.list"
-            case .token: return "key.fill"
-            case .warningZone: return "exclamationmark.triangle"
+                case .general: return "gear"
+                case .appearance: return "paintbrush"
+                case .messageTypes: return "checkmark.circle"
+                case .themes: return "bubble.left.and.bubble.right"
+                case .cache: return "internaldrive"
+                case .privacy: return "lock.shield"
+                case .customEmojis: return "face.smiling"
+                case .beta: return "testtube.2"
+                case .presence: return "music.note.list"
+                case .token: return "key.fill"
+                case .warningZone: return "exclamationmark.triangle"
             }
         }
     }
@@ -119,13 +130,27 @@ struct SettingsView: View {
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
 
-                NavigationLink(value: SettingsDestination.appearance) {
-                    sectionRow(for: .appearance)
-                }
+                Section {
+                    NavigationLink(value: SettingsDestination.general) {
+                        sectionRow(for: .general)
+                    }
 
-                ForEach(SettingsDestination.allCases.filter { $0 != .appearance && $0 != .design }, id: \.self) { destination in
-                    NavigationLink(value: destination) {
-                        sectionRow(for: destination)
+                    NavigationLink(value: SettingsDestination.appearance) {
+                        sectionRow(for: .appearance)
+                    }
+
+                    NavigationLink(value: SettingsDestination.messageTypes) {
+                        sectionRow(for: .messageTypes)
+                    }
+
+                    NavigationLink(value: SettingsDestination.themes) {
+                        sectionRow(for: .themes)
+                    }
+
+                    ForEach(SettingsDestination.allCases.filter { $0 != .appearance && $0 != .themes && $0 != .messageTypes && $0 != .general }, id: \.self) { destination in
+                        NavigationLink(value: destination) {
+                            sectionRow(for: destination)
+                        }
                     }
                 }
             }
@@ -177,7 +202,6 @@ struct SettingsView: View {
             Text("This will permanently remove the emoji from your Vercel Blob store.")
         }
         .onAppear {
-            ensureValidMessageStyle()
             ensureValidPrivacyMode()
             presenceManager.refreshAuthorizationStatus()
             refreshCustomEmojiManagerConfiguration()
@@ -196,81 +220,20 @@ struct SettingsView: View {
     @ViewBuilder
     private func destinationView(for destination: SettingsDestination) -> some View {
         switch destination {
-        case .appearance:
-            List {
-                Section(header: Text("settings.section.appearance")
-                            .font(.caption)
-                            .textCase(.uppercase)
-                            .foregroundStyle(.secondary)) {
-
-                    Toggle("settings.toggle.disableAnimatedAvatars", isOn: $disableAnimatedAvatars)
-                        .help(Text("settings.toggle.disableAnimatedAvatars.help"))
-
-                    Toggle("settings.toggle.disableProfilePictureTap", isOn: $disableProfilePictureTap)
-                        .help(Text("settings.toggle.disableProfilePictureTap.help"))
-                }
-
-                Section(header: Text("settings.section.design")
-                            .font(.caption)
-                            .textCase(.uppercase)
-                            .foregroundStyle(.secondary)) {
-
-                    Picker("settings.picker.messageStyle", selection: $messageStyleRawValue) {
-                        ForEach(MessageBubbleStyle.selectableCases) { style in
-                            Text(style.displayName).tag(style.rawValue)
-                        }
-                    }
-                    #if os(iOS)
-                    .pickerStyle(.segmented)
-                    #endif
-
-                    Toggle("settings.toggle.showSelfAvatar", isOn: $showSelfAvatar)
-                        .help(Text("settings.toggle.showSelfAvatar.help"))
-
-                    let selectedStyle = MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .imessage
-                    if selectedStyle == .custom {
-                        Section {
-                            TextEditor(text: $customBubbleJSON)
-                                .font(.system(.body, design: .monospaced))
-                                .frame(minHeight: 160)
-                                .padding(8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                        .stroke(Color.secondary.opacity(0.2))
-                                )
-                            #if os(iOS)
-                                .textInputAutocapitalization(.never)
-                                .disableAutocorrection(true)
-                            #endif
-
-                            if !MessageBubbleVisualConfiguration.isCustomJSONValid(customBubbleJSON) {
-                                Text("settings.customBubble.invalid")
-                                    .font(.caption)
-                                    .foregroundStyle(.red)
-                            }
-
-                            HStack(spacing: 12) {
-                                Button("settings.customBubble.loadSample") {
-                                    customBubbleJSON = MessageBubbleVisualConfiguration.sampleJSON
-                                }
-
-                                Button("common.clear") {
-                                    customBubbleJSON = ""
-                                }
-                                .foregroundStyle(.secondary)
-                            }
-                            .font(.caption)
-                        }
-                    }
-                }
-            }
-            .listStyle(.insetGrouped)
-            .navigationTitle(destination.titleKey)
-
-        case .design:
+        case .general:
             settingsSection(for: destination) {
-                designSettings()
+                generalSettings()
             }
+        case .appearance:
+            settingsSection(for: destination) {
+                appearanceSettings()
+            }
+
+        case .messageTypes:
+            MessageTypesSettingsView()
+
+        case .themes:
+            themesSettings()
 
         case .cache:
             settingsSection(for: destination) {
@@ -465,71 +428,251 @@ struct SettingsView: View {
     // MARK: - Settings Sections
 
     @ViewBuilder
+    private func generalSettings() -> some View {
+        Toggle("settings.toggle.useSettingsTabLabel", isOn: $useSettingsTabLabel)
+            .help(Text("settings.toggle.useSettingsTabLabel.help"))
+    }
+
+    @ViewBuilder
     private func appearanceSettings() -> some View {
         Toggle("settings.toggle.disableAnimatedAvatars", isOn: $disableAnimatedAvatars)
             .help(Text("settings.toggle.disableAnimatedAvatars.help"))
 
         Toggle("settings.toggle.disableProfilePictureTap", isOn: $disableProfilePictureTap)
             .help(Text("settings.toggle.disableProfilePictureTap.help"))
-    }
-
-    @ViewBuilder
-    private func designSettings() -> some View {
-        Picker("settings.picker.messageStyle", selection: $messageStyleRawValue) {
-            ForEach(MessageBubbleStyle.selectableCases) { style in
-                Text(style.displayName).tag(style.rawValue)
-            }
-        }
-        #if os(iOS)
-        .pickerStyle(.segmented)
-        #endif
 
         Toggle("settings.toggle.showSelfAvatar", isOn: $showSelfAvatar)
             .help(Text("settings.toggle.showSelfAvatar.help"))
 
         Toggle("Squared avatars", isOn: $useSquaredAvatars)
             .help(Text("minecraft avatars fr"))
+    }
 
-        let selectedStyle = MessageBubbleStyle(rawValue: messageStyleRawValue) ?? .imessage
-        if selectedStyle == .custom {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("settings.customBubble.label")
+    @ViewBuilder
+    private func themesSettings() -> some View {
+        List {
+            Section(
+                header: Text("Active Theme")
+                    .font(.caption)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.secondary),
+                footer: Text("Select a theme or create your own. Your choice will be saved.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
-
-                TextEditor(text: $customBubbleJSON)
-                    .font(.system(.body, design: .monospaced))
-                    .frame(minHeight: 160)
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .stroke(Color.secondary.opacity(0.2))
-                    )
-                #if os(iOS)
-                    .textInputAutocapitalization(.never)
-                    .disableAutocorrection(true)
-                #endif
-
-                if !MessageBubbleVisualConfiguration.isCustomJSONValid(customBubbleJSON) {
-                    Text("settings.customBubble.invalid")
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                }
-
-                HStack(spacing: 12) {
-                    Button("settings.customBubble.loadSample") {
-                        customBubbleJSON = MessageBubbleVisualConfiguration.sampleJSON
+            ) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(themeManager.selectedTheme.name)
+                        .font(.headline)
+                    if let description = themeManager.selectedTheme.description, !description.isEmpty {
+                        Text(description)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
-
-                    Button("common.clear") {
-                        customBubbleJSON = ""
-                    }
-                    .foregroundStyle(.secondary)
                 }
-                .font(.caption)
+                .padding(.vertical, 4)
+                .listRowSeparator(.hidden)
+
+                ThemePreviewView(theme: themeManager.selectedTheme, websocketService: WebSocketService.shared)
+                    .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                    .listRowBackground({
+                        if let bgColor = themeManager.selectedTheme.chatBackgroundColor, !bgColor.isEmpty {
+                            Color(hex: bgColor)
+                        } else {
+                            Color.clear
+                        }
+                    }())
+                    .animation(.easeInOut(duration: 0.3), value: themeManager.selectedTheme.chatBackgroundColor)
+                    .listRowSeparator(.hidden)
+
+                Button {
+                    showingThemeTemplatePicker = true
+                } label: {
+                    Label("Create Custom Theme", systemImage: "plus")
+                        .font(.body.weight(.semibold))
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.accentColor)
+                .padding(.top, 8)
             }
-            .padding(.top, 4)
+
+            Section(
+                header: Text("Built-in Themes")
+                    .font(.caption)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.secondary)
+            ) {
+                ForEach(MessageTheme.builtInThemes, id: \.id) { theme in
+                    themeRow(for: theme, isCustom: false)
+                }
+            }
+
+            Section(
+                header: Text("Custom Themes")
+                    .font(.caption)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.secondary),
+                footer: customThemesFooter
+            ) {
+                if themeManager.customThemes.isEmpty {
+                    Text("You haven't created any custom themes yet.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 4)
+                } else {
+                    ForEach(themeManager.customThemes, id: \.id) { theme in
+                        themeRow(for: theme, isCustom: true)
+                    }
+                }
+            }
         }
+        .listStyle(.insetGrouped)
+        .navigationTitle(SettingsDestination.themes.titleKey)
+        .sheet(isPresented: $showingThemeTemplatePicker) {
+            NavigationStack {
+                ThemeTemplatePickerView(themeManager: themeManager, websocketService: WebSocketService.shared)
+            }
+        }
+        .fullScreenCover(isPresented: $isPresentingThemeEditor) {
+            NavigationStack {
+                CustomThemeEditorView(
+                    themeManager: themeManager,
+                    existingTheme: themeEditorExistingTheme,
+                    baseTheme: themeEditorBaseTheme,
+                    websocketService: WebSocketService.shared
+                )
+            }
+            .onDisappear {
+                themeEditorExistingTheme = nil
+                themeEditorBaseTheme = nil
+            }
+        }
+        .confirmationDialog(
+            "Delete theme?",
+            isPresented: Binding(
+                get: { themePendingDeletion != nil },
+                set: { newValue in
+                    if !newValue {
+                        themePendingDeletion = nil
+                    }
+                }
+            ),
+            presenting: themePendingDeletion
+        ) { theme in
+            Button("Delete \(theme.name)", role: .destructive) {
+                themeManager.deleteCustomTheme(theme)
+                themePendingDeletion = nil
+            }
+            Button("Cancel", role: .cancel) {
+                themePendingDeletion = nil
+            }
+        } message: { theme in
+            Text("This will remove the custom theme \(theme.name). This action cannot be undone.")
+        }
+    }
+
+    private var customThemesFooter: some View {
+        Text("Swipe or long-press a theme to edit, duplicate, or delete it.")
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .padding(.top, 4)
+    }
+
+    @ViewBuilder
+    private func themeRow(for theme: MessageTheme, isCustom: Bool) -> some View {
+        let isSelected = themeManager.selectedTheme.id == theme.id
+
+        Button {
+            themeManager.selectTheme(theme)
+        } label: {
+            HStack(spacing: 12) {
+                ThemeListLabel(theme: theme, iconColor: isSelected ? .accentColor : .secondary)
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.accentColor)
+                }
+            }
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            themeContextMenu(for: theme, isCustom: isCustom)
+        }
+        #if os(iOS)
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            if isCustom {
+                Button {
+                    beginEditing(theme)
+                } label: {
+                    Label("Edit", systemImage: "slider.horizontal.3")
+                }
+                .tint(.blue)
+
+                Button {
+                    duplicateTheme(theme)
+                } label: {
+                    Label("Duplicate", systemImage: "square.on.square")
+                }
+                .tint(.orange)
+
+                Button(role: .destructive) {
+                    requestDelete(theme)
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            } else {
+                Button {
+                    duplicateTheme(theme)
+                } label: {
+                    Label("Duplicate", systemImage: "square.on.square")
+                }
+                .tint(.orange)
+            }
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private func themeContextMenu(for theme: MessageTheme, isCustom: Bool) -> some View {
+        Button {
+            duplicateTheme(theme)
+        } label: {
+            Label("Duplicate", systemImage: "square.on.square")
+        }
+
+        if isCustom {
+            Button {
+                beginEditing(theme)
+            } label: {
+                Label("Edit", systemImage: "slider.horizontal.3")
+            }
+
+            Button(role: .destructive) {
+                requestDelete(theme)
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+    }
+
+    private func beginEditing(_ theme: MessageTheme) {
+        themeEditorExistingTheme = theme
+        themeEditorBaseTheme = nil
+        DispatchQueue.main.async {
+            isPresentingThemeEditor = true
+        }
+    }
+
+    private func duplicateTheme(_ theme: MessageTheme) {
+        themeEditorExistingTheme = nil
+        themeEditorBaseTheme = theme
+        DispatchQueue.main.async {
+            isPresentingThemeEditor = true
+        }
+    }
+
+    private func requestDelete(_ theme: MessageTheme) {
+        themePendingDeletion = theme
     }
 
     @ViewBuilder
@@ -1265,17 +1408,6 @@ struct SettingsView: View {
 }
 
 private extension SettingsView {
-    func ensureValidMessageStyle() {
-        guard let style = MessageBubbleStyle(rawValue: messageStyleRawValue) else {
-            messageStyleRawValue = MessageBubbleStyle.imessage.rawValue
-            return
-        }
-
-        if style == .default {
-            messageStyleRawValue = MessageBubbleStyle.imessage.rawValue
-        }
-    }
-
     func ensureValidPrivacyMode() {
         guard PrivacyMode(rawValue: privacyModeRawValue) != nil else {
             privacyModeRawValue = PrivacyMode.defaultMode.rawValue
@@ -1380,6 +1512,126 @@ private struct PrivacyModeOptionRow: View {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(isSelected ? Color.accentColor.opacity(0.12) : backgroundColor)
         )
+    }
+}
+
+private struct MessageTypesSettingsView: View {
+    @AppStorage("visibleMessageTypeIDs") private var visibleMessageTypeIDsData: Data?
+
+    private let excludedTypeIDs: Set<Int> = [0, 19]
+
+    private var customizableTypeIDs: Set<Int> { MessageType.customizableIDs }
+
+    private var orderedMessageTypes: [MessageType] {
+        let customizable = messageTypes
+            .filter { customizableTypeIDs.contains($0.id) && !excludedTypeIDs.contains($0.id) }
+            .sorted { formattedName(for: $0).localizedCaseInsensitiveCompare(formattedName(for: $1)) == .orderedAscending }
+
+        let nonCustomizable = messageTypes
+            .filter { !customizableTypeIDs.contains($0.id) && !excludedTypeIDs.contains($0.id) }
+            .sorted { formattedName(for: $0).localizedCaseInsensitiveCompare(formattedName(for: $1)) == .orderedAscending }
+
+        return customizable + nonCustomizable
+    }
+
+    private var visibleMessageTypeIDs: Set<Int> {
+        guard let data = visibleMessageTypeIDsData,
+              let decoded = try? JSONDecoder().decode([Int].self, from: data) else {
+            return customizableTypeIDs
+        }
+        return Set(decoded).intersection(customizableTypeIDs)
+    }
+
+    var body: some View {
+        List {
+            Section(header: Text("Available")) {
+                ForEach(availableTypes, id: \.id) { type in
+                    messageTypeToggle(for: type)
+                }
+            }
+
+            Section(header: Text("Unavailable"), footer: footerText) {
+                Text("These message types aren't currently supported and will not be shown.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 8)
+
+                ForEach(unavailableTypes, id: \.id) { type in
+                    messageTypeToggle(for: type)
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle("Message Types")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var availableTypes: [MessageType] {
+        orderedMessageTypes.filter { customizableTypeIDs.contains($0.id) }
+    }
+
+    private var unavailableTypes: [MessageType] {
+        orderedMessageTypes.filter { !customizableTypeIDs.contains($0.id) }
+    }
+
+    private func messageTypeToggle(for type: MessageType) -> some View {
+        let isCustomizable = customizableTypeIDs.contains(type.id)
+
+        return Toggle(isOn: binding(for: type, isCustomizable: isCustomizable)) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(formattedName(for: type))
+                    .font(.body)
+                if !type.description.isEmpty {
+                    Text(type.description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .disabled(!isCustomizable)
+        #if os(macOS)
+        .toggleStyle(.checkbox)
+        #endif
+    }
+
+    private func binding(for type: MessageType, isCustomizable: Bool) -> Binding<Bool> {
+        Binding(
+            get: {
+                guard isCustomizable else { return false }
+                return visibleMessageTypeIDs.contains(type.id)
+            },
+            set: { newValue in
+                guard isCustomizable else { return }
+                setMessageTypeVisibility(for: type.id, isVisible: newValue)
+            }
+        )
+    }
+
+    private func setMessageTypeVisibility(for id: Int, isVisible: Bool) {
+        var updated = visibleMessageTypeIDs
+        if isVisible {
+            updated.insert(id)
+        } else {
+            updated.remove(id)
+        }
+        saveVisibleMessageTypeIDs(updated)
+    }
+
+    private func saveVisibleMessageTypeIDs(_ ids: Set<Int>) {
+        let filtered = Array(ids.intersection(customizableTypeIDs))
+        visibleMessageTypeIDsData = try? JSONEncoder().encode(filtered)
+    }
+
+    private func formattedName(for type: MessageType) -> String {
+        type.name.replacingOccurrences(of: "_", with: " ").capitalized
+    }
+
+    @ViewBuilder
+    private var footerText: some View {
+        Text("Only message types with custom rendering can be toggled. Others are shown by default.")
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .padding(.top, 4)
     }
 }
 

@@ -59,7 +59,20 @@ func getDiscordMessages(token: String, webSocketService: WebSocketService) {
                         let jsonData = try JSONSerialization.data(withJSONObject: message, options: [])
                         let decoder = JSONDecoder()
                         let currentmessage = try decoder.decode(Message.self, from: jsonData)
-                        
+
+                        if (currentmessage.type != 0 && currentmessage.type != 19) {
+                            print("********************************")
+                            print("found non-standard message type: \(currentmessage.type ?? -1) - \(currentmessage.typeName ?? "unknown")")
+                            print("- * - * - * -")
+                            print(currentmessage)
+                            print("- * - * - * -")
+                            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                                print(jsonString)
+                            } else {
+                                print("invalid json")
+                            }
+                            print("********************************")
+                        }                     
 
                         if !webSocketService.data.contains(where: { $0.messageId == currentmessage.messageId }) {
                             DispatchQueue.main.async {

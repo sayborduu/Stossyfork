@@ -45,7 +45,6 @@ struct UserSettings: Codable {
         locale = try container.decodeIfPresent(String.self, forKey: .locale)
         theme = try container.decodeIfPresent(String.self, forKey: .theme)
         
-        // Handle integer-to-boolean conversion for Discord's format
         developerMode = try container.decodeIntAsBool(forKey: .developerMode)
         afkTimeout = try container.decodeIfPresent(Int.self, forKey: .afkTimeout)
         status = try container.decodeIfPresent(String.self, forKey: .status)
@@ -160,7 +159,6 @@ struct UserSettings: Codable {
             
             text = try container.decodeIfPresent(String.self, forKey: .text)
             
-            // Handle emoji_id which can be a number or string
             if let emojiIdInt = try? container.decode(Int64.self, forKey: .emojiId) {
                 emojiId = String(emojiIdInt)
             } else {
@@ -169,7 +167,6 @@ struct UserSettings: Codable {
             
             emojiName = try container.decodeIfPresent(String.self, forKey: .emojiName)
             
-            // Handle expires_at which can be null or a string
             if let expiresAtString = try? container.decode(String.self, forKey: .expiresAt), expiresAtString != "<null>" {
                 expiresAt = expiresAtString
             } else {
@@ -194,7 +191,6 @@ struct UserSettings: Codable {
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             
-            // Handle null values for id which come as "<null>" strings
             if let idString = try? container.decode(String.self, forKey: .id), idString != "<null>" {
                 id = Int(idString)
             } else if let idInt = try? container.decode(Int.self, forKey: .id) {
@@ -203,14 +199,12 @@ struct UserSettings: Codable {
                 id = nil
             }
             
-            // Handle null values for name which come as "<null>" strings
             if let nameString = try? container.decode(String.self, forKey: .name), nameString != "<null>" {
                 name = nameString
             } else {
                 name = nil
             }
             
-            // Handle null values for color which come as "<null>" strings or actual nulls
             if let colorInt = try? container.decode(Int.self, forKey: .color) {
                 color = colorInt
             } else {
@@ -222,7 +216,6 @@ struct UserSettings: Codable {
     }
 }
 
-// Helper extension for decoding Discord's integer-boolean format
 extension KeyedDecodingContainer {
     func decodeIntAsBool(forKey key: Key) -> Bool? {
         if let intValue = try? decode(Int.self, forKey: key) {

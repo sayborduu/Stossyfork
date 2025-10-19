@@ -24,14 +24,14 @@ struct StossycordApp: App {
         UserDefaults.standard.register(defaults: [
             "hideRestrictedChannels": false,
             "useNativePicker": true,
-            "useRedesignedMessages": true,
             "useDiscordFolders": true,
             "privacyMode": PrivacyMode.defaultMode.rawValue,
             "privacyCustomLoadEmojis": true,
             "customEmojiStorageEnabled": false,
             "customEmojiStoreID": "",
             "customEmojiBlobToken": "",
-            "customEmojiBackendURL": "https://stossymoji.vercel.app"
+            "customEmojiBackendURL": "https://stossymoji.vercel.app",
+            "selectedThemeID": "imessage"
         ])
 
         let sharedService = WebSocketService.shared

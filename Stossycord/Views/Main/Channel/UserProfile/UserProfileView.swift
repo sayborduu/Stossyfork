@@ -142,8 +142,9 @@ struct ProfileContentView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let bio = profile.userProfile?.bio ?? profile.user.bio, !bio.isEmpty {
+                let processedBio = bio.replacingOccurrences(of: "\n", with: "  \n")
                 ProfileSectionView(title: "About Me") {
-                    Markdown(markdownBio(from: bio))
+                    Markdown(markdownBio(from: processedBio))
                         .markdownTheme(.basic)
                         .markdownImageProvider(DiscordEmojiImageProvider(lineHeight: ProfileContentView.bioLineHeight))
                         .markdownInlineImageProvider(DiscordEmojiInlineImageProvider(lineHeight: ProfileContentView.bioLineHeight))
