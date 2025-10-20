@@ -2,6 +2,35 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconName</key>
+			<string>AppIcon</string>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>StossycordLogo (2)</string>
+			</array>
+		</dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>AppIconLGBT</key>
+			<dict>
+				<key>CFBundleIconName</key>
+				<string>AppIconLGBT</string>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>AppIconLGBT-iOS-Default-1024x1024@1x</string>
+					<string>Frame 1</string>
+				</array>
+			</dict>
+		</dict>
+	</dict>
+	<key>UIApplicationSupportsAlternateIcons</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

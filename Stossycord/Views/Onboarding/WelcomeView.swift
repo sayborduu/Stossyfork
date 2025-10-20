@@ -11,7 +11,6 @@ struct WelcomeView: View {
     @StateObject var webSocketService: WebSocketService
     let onCompletion: () -> Void
     @State private var path: [OnboardingStep] = []
-    private var appIconImage: Image { AppResources.appIconImage }
 
     private enum OnboardingStep: Hashable {
         case privacy
@@ -57,8 +56,7 @@ struct WelcomeView: View {
 
     private var landingContent: some View {
         VStack(spacing: 24) {
-            appIconImage
-            .resizable()
+            AppIcon()
             .scaledToFit()
             .frame(width: 64, height: 64)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))

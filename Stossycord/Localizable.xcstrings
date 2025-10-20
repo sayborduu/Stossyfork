@@ -5,16 +5,37 @@
       "shouldTranslate" : false
     },
     " (%@). " : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(%@)."
+          }
+        }
+      }
     },
     " has closed! " : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ha acabado!"
+          }
+        }
+      }
     },
     "'s poll " : {
 
     },
     "(%@)" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(%@)"
+          }
+        }
+      }
     },
     "(edited)" : {
       "localizations" : {
@@ -27,10 +48,24 @@
       }
     },
     "@%@" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La encuesta de @%@"
+          }
+        }
+      }
     },
     "%@ " : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
     },
     "%@ • %@" : {
       "localizations" : {
@@ -85,10 +120,24 @@
       }
     },
     "%lld%%" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        }
+      }
     },
     "%lldpx" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldpx"
+          }
+        }
+      }
     },
     "▢ replacement" : {
       "localizations" : {
@@ -121,7 +170,14 @@
       }
     },
     "Active Theme" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tema activo"
+          }
+        }
+      }
     },
     "Add your Store ID and BLOB_READ_WRITE_TOKEN to continue." : {
       "localizations" : {
@@ -142,6 +198,12 @@
           }
         }
       }
+    },
+    "Alternate icons are not available on this platform." : {
+
+    },
+    "App Icon" : {
+
     },
     "appearance" : {
       "extractionState" : "manual",
@@ -256,28 +318,77 @@
       }
     },
     "Available" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disponible"
+          }
+        }
+      }
     },
     "Avatar" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        }
+      }
     },
     "Avatar Corner Radius" : {
 
     },
     "Avatar Scale" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escala de Avatar"
+          }
+        }
+      }
     },
     "Back" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver"
+          }
+        }
+      }
     },
     "Based on Built-in Theme" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basado en tema por defecto"
+          }
+        }
+      }
     },
     "Bio" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biografía"
+          }
+        }
+      }
     },
     "Blank Theme" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tema en Blanco"
+          }
+        }
+      }
     },
     "Blob configuration" : {
       "localizations" : {
@@ -323,10 +434,24 @@
       }
     },
     "Bubble Style" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estilo de Burbujas"
+          }
+        }
+      }
     },
     "Built-in Themes" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temas por defecto"
+          }
+        }
+      }
     },
     "Camera" : {
       "localizations" : {
@@ -359,10 +484,24 @@
       }
     },
     "Chat Background" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fondo del Chat"
+          }
+        }
+      }
     },
     "Choose Template" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir plantilla"
+          }
+        }
+      }
     },
     "Choose your privacy mode" : {
       "localizations" : {
@@ -452,6 +591,9 @@
         }
       }
     },
+    "common.ok" : {
+
+    },
     "Complete 2FA Verification" : {
       "localizations" : {
         "es" : {
@@ -536,13 +678,34 @@
 
     },
     "Create a completely new theme from scratch with default settings." : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crea un tema completamente nuevo desde cero con los ajustes predeterminados."
+          }
+        }
+      }
     },
     "Create Custom Theme" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear tema personalizado"
+          }
+        }
+      }
     },
     "Create Theme" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear tema"
+          }
+        }
+      }
     },
     "Custom" : {
       "localizations" : {
@@ -585,10 +748,24 @@
       }
     },
     "Custom Status" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado personalizado"
+          }
+        }
+      }
     },
     "Custom Themes" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temas personalizados"
+          }
+        }
+      }
     },
     "Default" : {
       "localizations" : {
@@ -601,7 +778,14 @@
       }
     },
     "Delete" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar"
+          }
+        }
+      }
     },
     "Delete \"%@\"" : {
       "localizations" : {
@@ -614,7 +798,14 @@
       }
     },
     "Delete %@" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar %@"
+          }
+        }
+      }
     },
     "Delete emoji?" : {
       "localizations" : {
@@ -637,10 +828,24 @@
       }
     },
     "Delete theme?" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Borrar tema?"
+          }
+        }
+      }
     },
     "Description (optional)" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descripción (opcional)"
+          }
+        }
+      }
     },
     "Disable this to only use Stossycord custom emojis." : {
       "localizations" : {
@@ -664,13 +869,34 @@
       }
     },
     "Discard" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descartar"
+          }
+        }
+      }
     },
     "Discard changes?" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Descartar cambios?"
+          }
+        }
+      }
     },
     "Discord Settings" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes de Discord"
+          }
+        }
+      }
     },
     "DMs" : {
       "localizations" : {
@@ -693,10 +919,24 @@
       }
     },
     "Duplicate" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duplicar"
+          }
+        }
+      }
     },
     "Edit" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar"
+          }
+        }
+      }
     },
     "Edit Message" : {
       "localizations" : {
@@ -709,10 +949,24 @@
       }
     },
     "Edit Mode" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo de Edición"
+          }
+        }
+      }
     },
     "Edit Theme" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar tema"
+          }
+        }
+      }
     },
     "Editing message" : {
       "localizations" : {
@@ -1022,6 +1276,7 @@
 
     },
     "minecraft avatars fr" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -1060,6 +1315,9 @@
           }
         }
       }
+    },
+    "No alternate icons are configured yet." : {
+
     },
     "No channels available." : {
       "localizations" : {
@@ -1411,6 +1669,9 @@
           }
         }
       }
+    },
+    "Select the app icon to use." : {
+
     },
     "Send Anyway" : {
       "localizations" : {
@@ -2497,6 +2758,7 @@
 
     },
     "Squared avatars" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
